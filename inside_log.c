@@ -97,13 +97,9 @@ void reboot_times_history_info( void ){
     
     get_key_value( "reboot_times", UINT32, (uint8_t *)(&reboot_times) );
     
-    if( reboot_times == 0 ){
-        reboot_times = 1;
-        set_key_value( "reboot_times", UINT32, (uint8_t *)(&reboot_times) );
-    }else{
-        reboot_times++;
-        set_key_value( "reboot_times", UINT32, (uint8_t *)(&reboot_times) );
-    }
+    reboot_times = reboot_times == 0 ? 1 : ++reboot_times;
+    
+    set_key_value( "reboot_times", UINT32, (uint8_t *)(&reboot_times) );
     
     LOG_INFO( "reboot_times_history_info: %d\r\n", reboot_times == 0 ? 1 : reboot_times );
 }
