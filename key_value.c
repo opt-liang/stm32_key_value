@@ -293,14 +293,11 @@ void check_hash_conflict( int count,...){
 bool get_key_value( char *key, enum TYPE type , uint8_t *value ){
     
     bool stat = false;
-    static bool local_flag = false;
+    static int16_t local_flag = 0;
 
-    taskENTER_CRITICAL();
-    if( local_flag == false ){
-        local_flag = true;
-        xSemaphoreTake(key_value_SemaphoreHandle, portMAX_DELAY);
+    if( local_flag++ == 0 ){
+        xSemaphoreTake( key_value_SemaphoreHandle, portMAX_DELAY );
     }
-    taskEXIT_CRITICAL();
 
     int hash = aphash( key );//Possible strings generate hash conflicts
 
@@ -317,12 +314,9 @@ bool get_key_value( char *key, enum TYPE type , uint8_t *value ){
         stat = true;
     }
     
-    taskENTER_CRITICAL();
-    if( local_flag == true ){
-        local_flag = false;
+    if( --local_flag == 0 ){
         xSemaphoreGive( key_value_SemaphoreHandle );
     }
-    taskEXIT_CRITICAL();
     
     return stat;
 }
