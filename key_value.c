@@ -262,9 +262,7 @@ void check_hash_conflict( int count,...){
         va_list ap;
         char *s;
         uint32_t *array = NULL;
-        
-        va_start(ap, count);
-    
+
         array = (uint32_t *)pvPortMalloc( count * sizeof(uint32_t) );
         
         if( array == NULL ){
@@ -272,11 +270,14 @@ void check_hash_conflict( int count,...){
             return;
         }
         
+        va_start(ap, count);
+        
         for( uint8_t i = 0; i < count ; i ++ ){
                 s = va_arg( ap, char*);
                 array[i] = aphash( s );
                 KEY_VALUE_INFO( "string %s\n",s);
         }
+        
         va_end(ap);
         
         if ( check_repetition( array, count) ){
@@ -298,7 +299,7 @@ bool get_key_value( char *key, enum TYPE type , uint8_t *value ){
     if( local_flag++ == 0 ){
         xSemaphoreTake( key_value_SemaphoreHandle, portMAX_DELAY );
     }
-
+    
     int hash = aphash( key );//Possible strings generate hash conflicts
 
     //find string value
@@ -323,7 +324,7 @@ bool get_key_value( char *key, enum TYPE type , uint8_t *value ){
 
 bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
     
-    xSemaphoreTake(key_value_SemaphoreHandle, portMAX_DELAY);
+    xSemaphoreTake( key_value_SemaphoreHandle, portMAX_DELAY);
     bool stat = false;
     int hash = aphash( key );//Possible strings generate hash conflicts
 
@@ -353,9 +354,7 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
 			//compare real value
 			if( *(addr) == hash && *((addr + 1) ) == *((uint32_t *)value) ){
                 stat = true;
-                goto exe;
 			}
-            
         }else{
 
             //write to backup
@@ -411,7 +410,6 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
 
             if( memcmp( value, addr + 2, len ) == 0x00 ){
                 stat = true;
-                goto exe;
             }
         }else{
             
@@ -433,12 +431,3 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
     xSemaphoreGive( key_value_SemaphoreHandle );
     return stat;
 }
-
-
-
-
-
-
-
-
-
