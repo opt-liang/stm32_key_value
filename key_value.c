@@ -290,14 +290,16 @@ void check_hash_conflict( int count,...){
 }
 
 /**********************************************************************************************/
-
+//UINT32        VALUE
+//STRINGS       POINTER
 bool get_key_value( char *key, enum TYPE type , uint8_t *value ){
     
     bool stat = false;
     static int16_t local_flag = 0;
 
-    if( local_flag++ == 0 ){
+    if( local_flag == 0 ){
         xSemaphoreTake( key_value_SemaphoreHandle, portMAX_DELAY );
+        local_flag ++;
     }
     
     int hash = aphash( key );//Possible strings generate hash conflicts
@@ -431,3 +433,12 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
     xSemaphoreGive( key_value_SemaphoreHandle );
     return stat;
 }
+
+
+
+
+
+
+
+
+
