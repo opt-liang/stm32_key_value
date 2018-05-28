@@ -4,3 +4,4 @@
 只能存储4位整型数据和可见字符串数据
 #define  ADDRESS_MAPPING(X)         (0x8000000+X*2*1024)   //flash扇区
 init_key_value( ADDRESS_MAPPING(116), ADDRESS_MAPPING(117), ADDRESS_MAPPING(118) );
+基于freeRTOS系实时操作系统
