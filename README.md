@@ -2,9 +2,9 @@
 
 使用stm32内部flash作为键值对的存储，掉电保存数据
 
-可能产生哈希冲突，需要检测，保存接口
+可能产生哈希冲突，需要检测，检查接口check_hash_conflict( 5, "liang", "zhang", "gan", "hao", "liu" );
 
-只能存储4位整型数据和可见字符串数据
+只能存储INT32整型数据和可见字符串数据
 
 #define  ADDRESS_MAPPING(X)         (0x8000000+X*2*1024)   //flash扇区
 
