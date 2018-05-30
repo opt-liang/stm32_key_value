@@ -37,7 +37,7 @@ uint32_t* __find_key( uint32_t key, enum TYPE type ){
     //find string value
     if( type == UINT32 ){
         uint32_t *address = (uint32_t *)KEY_VALUE_INT32;
-        for( uint16_t i = 0; i < ( HASH_MAX_SIZE / 8  ); i ++ ){
+        for( uint16_t i = 0; i < ( HASH_MAX_SIZE / 8 - 1 ); i ++ ){
             if( key == *( address + i * 2 ) ){
                 return ( address + i * 2 );
             }
@@ -91,44 +91,32 @@ uint8_t get_backup_flag( enum TYPE type ){
 }
 
 bool move_key_value_back( enum TYPE type ){
-
+    bool stat = false;
     if( type == UINT32 ){
+        
         if( flash_erase( KEY_VALUE_INT32, 1 ) == false ){
             return false;
         }
-        
-        bool stat = false;
         flash_write( (const uint8_t *)( KEY_VALUE_BACKUP ), (uint32_t)( KEY_VALUE_INT32 ), HASH_MAX_SIZE - 8 );
         if( memcmp( (const uint8_t *)(KEY_VALUE_INT32), (const uint8_t *)( KEY_VALUE_BACKUP ), HASH_MAX_SIZE - 8 ) == 0 ){
             stat = true;
         }
-        
-        backup_flag( type, false );
-        
-        flash_erase( KEY_VALUE_BACKUP, 1 );
-        
-        return stat;
-        
     }else if( type == STRINGS ){
         
         if( flash_erase( KEY_VALUE_STRINGS, 1 ) == false ){
             return false;
         }
-        
-        bool stat = false;
+
         flash_write( (const uint8_t *)( KEY_VALUE_BACKUP ), (uint32_t)( KEY_VALUE_STRINGS ), HASH_MAX_SIZE - 8 );
         if( memcmp( (const uint8_t *)( KEY_VALUE_STRINGS ), (const uint8_t *)( KEY_VALUE_BACKUP ), HASH_MAX_SIZE - 8 ) == 0 ){
             stat = true;
         }
-        
-        backup_flag( type, false );
-        
-        flash_erase( KEY_VALUE_BACKUP, 1 );
-        
-        return stat;
-    }else{
-        return false;
     }
+    if( stat ){
+        backup_flag( type, false );
+        flash_erase( KEY_VALUE_BACKUP, 1 );
+    }
+    return stat;
 }
 
 bool move_key_value( enum TYPE type ){
@@ -145,12 +133,11 @@ bool move_key_value( enum TYPE type ){
                 if( 0xffffffff == *( address + i * 2 ) ){
                     break;
                 }
-				flash_write( (const uint8_t *)(address + i * 2), (uint32_t)( KEY_VALUE_BACKUP + j * 2 * 4 ), 8 );   //flash write 0
-                j++;
-				//compare write object
-//				if( memcmp( (const uint8_t *)( address + i * 2 ), (const uint8_t *)( KEY_VALUE_BACKUP + j * 2 * 4 ), 8 ) != 0 ){
-//					return false;
-//				}
+				if( flash_write( (const uint8_t *)(address + i * 2), (uint32_t)( KEY_VALUE_BACKUP + j * 2 * 4 ), 8 ) ){
+                    j++;
+                }else{
+                    return false;
+                }
 			}
         }
         
@@ -171,8 +158,11 @@ bool move_key_value( enum TYPE type ){
                 if(  0xffffffff == *( address + i ) ){
                     break;
                 }
-                flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 );   //flash write 0
-                j++;
+                if( flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 ) ){
+                    j++;
+                }else{
+                    return false;
+                }
             }
         }
         
@@ -196,6 +186,7 @@ void init_key_value( uint32_t key_value_int32, uint32_t key_value_string, uint32
     key_value_SemaphoreHandle = xSemaphoreCreateBinary();//signal
     xSemaphoreGive( key_value_SemaphoreHandle );
     if( key_value_SemaphoreHandle == NULL ){
+        KEY_VALUE_INFO("init_key_value key_value_SemaphoreHandle failed\r\n");
         while( true );
     }
     
@@ -222,71 +213,72 @@ void init_key_value( uint32_t key_value_int32, uint32_t key_value_string, uint32
 
 int aphash( char* str ){
       
-      int hash = 0;
+    int hash = 0;
 
-      uint16_t len = strlen( str );
-      
-      for (int i = 0; i < len && len <= 64; i++) {
-         if ((i & 1) == 0) {
-            hash ^= (hash << 7) ^ ( str[i] ) ^ (hash >> 3);
-         } else {
-            hash ^= ~((hash << 11) ^ ( str[i] ) ^ (hash >> 5));
-         }
-      }
-      
-      return hash & 0x7FFFFFFF;
+    uint16_t len = strlen( str );
+    if( len > 64 ){
+      KEY_VALUE_INFO( "aphash String over 64 bytes\r\n");
+    }
+    for (int i = 0; i < len && len <= 64; i++) {
+     if ((i & 1) == 0) {
+        hash ^= (hash << 7) ^ ( str[i] ) ^ (hash >> 3);
+     } else {
+        hash ^= ~((hash << 11) ^ ( str[i] ) ^ (hash >> 5));
+     }
+    }
+
+    return hash & 0x7FFFFFFF;
 }
 
-/**********************************************************************************************/
 //Hash conflict check, function check all string key
 
 bool check_repetition( uint32_t *array, uint8_t count ){
 
-        for( uint8_t i = 0; i < count && count < 255; i ++ ){
-                for( uint8_t j = i+1; j < count; j ++ ){
-                        if( array[i] == array[j] ){
-                                return true;
-                        }
-                }
+    for( uint8_t i = 0; i < count && count < 255; i ++ ){
+        for( uint8_t j = i+1; j < count; j ++ ){
+            if( array[i] == array[j] ){
+                    return true;
+            }
         }
-        return false;
+    }
+    return false;
 }
 
 // check_hash_conflict( 5, "liang", "zhang", "gan", "hao", "liu" );
 void check_hash_conflict( int count,...){
-        if( count >= 255 ){
-            KEY_VALUE_INFO( "check_hash_conflict--The number is greater than 255\r\n");
-            return;
-        }
-        
-        va_list ap;
-        char *s;
-        uint32_t *array = NULL;
+    if( count >= 200 ){
+        KEY_VALUE_INFO( "check_hash_conflict--The number is greater than 255\r\n");
+        return;
+    }
+    
+    va_list ap;
+    char *s;
+    uint32_t *array = NULL;
 
-        array = (uint32_t *)pvPortMalloc( count * sizeof(uint32_t) );
-        
-        if( array == NULL ){
-            KEY_VALUE_INFO( "Allocated memory failure\r\n");
-            return;
-        }
-        
-        va_start(ap, count);
-        
-        for( uint8_t i = 0; i < count ; i ++ ){
-                s = va_arg( ap, char*);
-                array[i] = aphash( s );
-                KEY_VALUE_INFO( "string %s\n",s);
-        }
-        
-        va_end(ap);
-        
-        if ( check_repetition( array, count) ){
-                KEY_VALUE_INFO( "Duplication of data\r\n");
-        }else{
-                KEY_VALUE_INFO( "No Duplication of data\r\n");
-        }
-        
-        vPortFree( array );
+    array = (uint32_t *)pvPortMalloc( count * sizeof(uint32_t) );
+    
+    if( array == NULL ){
+        KEY_VALUE_INFO( "Allocated memory failure\r\n");
+        return;
+    }
+    
+    va_start(ap, count);
+    
+    for( uint8_t i = 0; i < count ; i ++ ){
+        s = va_arg( ap, char*);
+        array[i] = aphash( s );
+        KEY_VALUE_INFO( "string %s\n",s);
+    }
+    
+    va_end(ap);
+    
+    if ( check_repetition( array, count) ){
+        KEY_VALUE_INFO( "Duplication of data\r\n");
+    }else{
+        KEY_VALUE_INFO( "No Duplication of data\r\n");
+    }
+    
+    vPortFree( array );
 }
 
 /**********************************************************************************************/
@@ -361,12 +353,14 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
 
             //write to backup
 			if( move_key_value( type ) == false ){
+                KEY_VALUE_INFO("UINT32 write to backup failed\r\n");
 				goto exe;
 			}
 			
             static uint8_t cycleCount = 0;
             if( cycleCount ++ > 5 ){
                 cycleCount = 0;
+                KEY_VALUE_INFO( "UINT32 set_key_value backup failed\r\n" );
                 goto exe;
             }
             goto int32_rewrite;
@@ -390,14 +384,17 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
             }while( ( uint32_t )( key_address + i ) < ( KEY_VALUE_STRINGS + HASH_MAX_SIZE ) );
             
             if( ( uint32_t )( key_address + i ) >= ( KEY_VALUE_STRINGS + HASH_MAX_SIZE ) ){
-                //error never happen
-                printf( "key_value Abnormality error\r\n" );
+                KEY_VALUE_INFO( "set_key_value Abnormality error\r\n" );
                 goto exe;
             }
         }
         
         uint32_t* addr = NULL;
         uint16_t len  = strlen( ( char *)value );
+        if( len > 256 ){
+            KEY_VALUE_INFO( "key_value String over 256 bytes\r\n" );
+            return false;
+        }
         strings_rewrite:
         addr = __find_key( 0xffffffff, type );
         if( addr && ( uint32_t )( addr + 2 + len / 4 + 1 ) < ( KEY_VALUE_STRINGS + HASH_MAX_SIZE ) ){
@@ -417,12 +414,14 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
             
             //write to backup
 			if( move_key_value( type ) == false ){
+                KEY_VALUE_INFO("STRINGS write to backup failed\r\n");
 				goto exe;
 			}
             
             static uint8_t cycleCount = 0;
             if( cycleCount ++ > 5 ){
                 cycleCount = 0;
+                KEY_VALUE_INFO( "STRINGS set_key_value backup failed\r\n" );
                 goto exe;
             }
             goto strings_rewrite;
