@@ -4,7 +4,7 @@
 
 可能产生哈希冲突，需要检测，检查接口check_hash_conflict( 5, "liang", "zhang", "gan", "hao", "liu" );
 
-只能存储INT32整型数据和可见字符串数据
+只能存储UINT32整型数据和可见字符串数据
 
 初始化:
 
