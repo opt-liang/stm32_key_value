@@ -28,11 +28,11 @@ bool flash_erase( int32_t flashaddr, uint32_t page ){
 	
 reerase:
 	
-    taskENTER_CRITICAL();//进入临界区
+    taskENTER_CRITICAL();//陆酶脠毛脕脵陆莽脟酶
     HAL_FLASH_Unlock();
 	HAL_FLASHEx_Erase(&f, &PageError);
     HAL_FLASH_Lock();
-    taskEXIT_CRITICAL();//退出临界区
+    taskEXIT_CRITICAL();//脥脣鲁枚脕脵陆莽脟酶
 	
     if( PageError != 0xFFFFFFFF ){
         cycleCount ++;
@@ -69,7 +69,7 @@ bool flash_write( const uint8_t *ramaddr, uint32_t flashaddr, int16_t size ){
     uint8_t  Remainder          = size % 4;
     uint16_t Multiple           = size / 4;
 	
-    taskENTER_CRITICAL();//进入临界区
+    taskENTER_CRITICAL();//陆酶脠毛脕脵陆莽脟酶
     HAL_FLASH_Unlock();
     for( int16_t i = 0; i < Multiple ; i ++  ){
         
@@ -88,8 +88,14 @@ bool flash_write( const uint8_t *ramaddr, uint32_t flashaddr, int16_t size ){
     }
     
     HAL_FLASH_Lock();
-	taskEXIT_CRITICAL();//退出临界区
-    return true;
+	taskEXIT_CRITICAL();//脥脣鲁枚脕脵陆莽脟酶
+    
+    if( memcmp( ramaddr, (uint8_t *)flashaddr, size) == 0 ){
+        return true;
+    }else{
+        DEBUG_INFO("inside flash write failure\r\n");
+        return false;
+    }
 }
 #endif
 
@@ -103,4 +109,3 @@ bool flash_read( int32_t flashaddr , uint8_t *ramBuffer , uint16_t bytesLen ){
 	}
     return true;
 }
-
