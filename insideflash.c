@@ -43,6 +43,14 @@ reerase:
         osDelay(100);
         goto reerase;
     }
+
+    uint8_t *eraseaddr = (uint8_t *)flashaddr;
+    for( uint32_t i = 0; i < page * 2048 ; i ++ ){
+        if( eraseaddr[ i ] != 0xff ){
+            return false;
+        }
+    }
+
     return true;
 }
 
