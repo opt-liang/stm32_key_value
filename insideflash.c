@@ -1,10 +1,11 @@
 #include "insideflash.h"
 #include "string.h"
 #include <stdio.h>
+#include "SEGGER_RTT.h"
 
 #define FLASH_DEBUG 1
 #if FLASH_DEBUG
-#define FLASH_INFO( fmt, args... ) 	printf( fmt, ##args )//KEY_VALUE_INFO(fmt, ##args)
+#define FLASH_INFO( fmt, args... ) 	SEGGER_RTT_printf( 0, fmt, ##args )
 #else
 #define FLASH_INFO( fmt, args... )
 #endif
