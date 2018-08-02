@@ -529,7 +529,7 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
         addr = __find_key( ERASURE_STATE, type );
         if( addr && ( uint32_t )( addr + 2 + len / 4 + 1 ) < ( KEY_VALUE_STRINGS + HASH_MAX_SIZE ) ){
             cycleCount = 0;
-            uint32_t variable = 0xffffff00;
+            uint32_t variable = 00;
             if( len % 4 == 0x00 ){
                 flash_write( ( uint8_t * )( &variable ), ( uint32_t )( addr + 2 + len / 4 ), 4 );
             }
