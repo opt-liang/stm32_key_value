@@ -3,10 +3,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define M4      //M4
+#define M3      //M4
 
 #if defined M3
-    //#define _STM32L_
+//    #define _STM32L_
     #if defined _STM32L_
         #include "stm32l1xx_hal.h"
     #else
@@ -28,10 +28,10 @@
 #endif
 
 
-#define SECTOR_NUM              8
-#define SECTOR_SIZE_MIN         ( 128 * 1024 )
+#define SECTOR_NUM              128
+#define SECTOR_SIZE_MIN         ( 2 * 1024 )
 
-#define FLASH_MAX_SIZE          ( 512 * 1024 )
+#define FLASH_MAX_SIZE          ( 256 * 1024 )
 #define FLASH_END_ADDR          ( FLASH_BASE + FLASH_MAX_SIZE )
 
 uint32_t flash_sector_address( int16_t index );
