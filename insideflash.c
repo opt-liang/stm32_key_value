@@ -1,11 +1,10 @@
 #include "insideflash.h"
 #include "string.h"
 #include <stdio.h>
-#include "SEGGER_RTT.h"
 
 #define FLASH_DEBUG 1
 #if FLASH_DEBUG
-#define FLASH_INFO( fmt, args... ) 	SEGGER_RTT_printf( 0, fmt, ##args )
+#define FLASH_INFO( fmt, args... ) 	printf( fmt, ##args )//KEY_VALUE_INFO(fmt, ##args)
 #else
 #define FLASH_INFO( fmt, args... )
 #endif
@@ -22,7 +21,7 @@ uint32_t flash_sector_address( int16_t index ){
     uint32_t realaddr = FLASH_BASE;
     
     #if defined M3
-        realaddr += ( index ) * 2 * 1024;
+        realaddr += ( index ) * SECTOR_SIZE_MIN;
     #else
         //stm32f407ve
         if( index > 0 ){
@@ -39,7 +38,7 @@ uint32_t flash_sector_address( int16_t index ){
     return realaddr;
 }
 
-bool flash_leagle_sector_address( int32_t flashaddr ){
+bool flash_legal_sector_address( int32_t flashaddr ){
     for( uint16_t i = 0; i < SECTOR_NUM; i++ ){
         if( flashaddr == flash_sector_address( i ) ){
             return true;
@@ -60,7 +59,7 @@ int16_t flash_sector_index( uint32_t flashaddr ){
 
 bool flash_erase( int32_t flashaddr, uint32_t page ){
     
-    if( ( ( flashaddr < FLASH_BASE || flashaddr > FLASH_END_ADDR ) && flash_leagle_sector_address( flashaddr ) ) || page == 0){
+    if( ( ( flashaddr < FLASH_BASE || flashaddr > FLASH_END_ADDR ) && flash_legal_sector_address( flashaddr ) ) || page == 0){
         FLASH_INFO("flash_erase: erase para error\r\n");
         return false;
     }
@@ -119,12 +118,12 @@ reerase:
         goto reerase;
     }
     
-//    uint8_t *eraseaddr = (uint8_t *)flashaddr;
-//    for( uint32_t i = 0; i < page * SECTOR_SIZE ; i ++ ){
-//        if( eraseaddr[ i ] != (uint8_t) ERASURE_STATE ){
-//            return false;
-//        }
-//    }
+    uint8_t *eraseaddr = (uint8_t *)flashaddr;
+    for( uint32_t i = 0; i < page * SECTOR_SIZE_MIN ; i ++ ){
+        if( eraseaddr[ i ] != (uint8_t) ERASURE_STATE ){
+            return false;
+        }
+    }
     
     return true;
 }
@@ -182,12 +181,17 @@ bool flash_write( const uint8_t *ramaddr, uint32_t flashaddr, int32_t size ){
     HAL_FLASH_Lock();
 	__enable_irq();
     
-    if( memcmp( ramaddr, (uint8_t *)flashaddr, size) == 0 ){
+    #if defined _STM32L_
         return true;
-    }else{
-        FLASH_INFO("inside flash write failure\r\n");
-        return false;
-    }
+    #else
+        if( memcmp( ramaddr, (uint8_t *)flashaddr, size) == 0 ){
+            return true;
+        }else{
+            FLASH_INFO("inside flash write failure\r\n");
+            return false;
+        }
+    #endif
+    
 }
 
 bool flash_read( int32_t flashaddr , uint8_t *ramBuffer , uint16_t bytesLen ){
