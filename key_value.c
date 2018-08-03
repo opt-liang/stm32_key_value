@@ -10,14 +10,15 @@
 #define KEY_DEBUG 1
 
 #if KEY_DEBUG
-#define KEY_VALUE_INFO( fmt, args... ) 	SEGGER_RTT_printf( 0, fmt, ##args )
+
+#define KEY_VALUE_INFO( fmt, args... )      SEGGER_RTT_printf( 0, fmt, ##args )     //printf( fmt, ##args )     //rtt(swo)
 #else
 #define KEY_VALUE_INFO( fmt, args... )
 #endif
 
 /************************Simple transplantable flash operation**********************/
 
-#define SYS  false
+#define SYS  true
 #if SYS
 #include "cmsis_os.h"
 SemaphoreHandle_t key_value_SemaphoreHandle;
@@ -41,7 +42,7 @@ void key_value_test( void ){
     volatile uint16_t test_mode = 0x00;
     uint32_t i = 0;
     uint32_t j = 0;
-    for( i = 0; i < 1111111; i++ ){
+    for( i = 0; i < 51111; i++ ){
         if( set_key_value( "key_value_test", UINT32, ( uint8_t * )( &i )) ){
             if( get_key_value( "key_value_test", UINT32, ( uint8_t * )( &j )) && j == i ){
                 KEY_VALUE_INFO( "%d\r\n", j );
@@ -55,7 +56,7 @@ void key_value_test( void ){
 
     uint32_t test_string = 0;
     uint8_t my_string_test[ 16 ] = "";
-    for( uint32_t i = 0; i < 1111111; i++ ){
+    for( uint32_t i = 1111111111; i > 0 ; i-- ){
         memset( my_string_test, 0, 16 );
         sprintf( (char *)my_string_test, "%d\r\n", i );
         if( set_key_value( "my_string_test", STRINGS, (uint8_t *)my_string_test ) ){
@@ -97,7 +98,7 @@ uint32_t* __find_key( uint32_t key, enum TYPE type ){
                     return ( address + i );
                 }
             }else{
-                if( 0xefffffff == *( address + i ) ){
+                if( 0xef1234ef == *( address + i ) ){
                     if( key == *( address + i + 1 ) ){
                         return ( address + i + 1 );
                     }
@@ -123,7 +124,7 @@ uint32_t* __find_real_key( uint32_t key, enum TYPE type ){
     }else if( type == STRINGS ){
         uint32_t *address = (uint32_t *)KEY_VALUE_STRINGS;
         for( uint16_t i = 0; i < ( HASH_MAX_SIZE / 4 - 2 ); i ++ ){
-            if( 0xefffffff == *( address + i ) ){
+            if( 0xef1234ef == *( address + i ) ){
                 if( key == *( address + i + 1 ) ){
                     realaddress = ( address + i + 1 );
                 }
@@ -256,30 +257,47 @@ bool move_key_value( enum TYPE type ){
         
         uint32_t *address = (uint32_t *)KEY_VALUE_STRINGS;
         
-        bool tailed = false;
-        uint8_t count = 0;
+        #if !defined _STM32L_
+            bool tailed = false;
+            uint8_t count = 0;
+        #endif
+        
         for( uint16_t i = 0, j = 0; i < ( HASH_MAX_SIZE / 4 ); i ++ ){
             
-            if( FILL_STATE != *( address + i ) || tailed ){
+            #if defined _STM32L_
+                if( 0xef1234ef == *( address + i ) ){
+                    while( (*( address + i ) & 0xff000000) != 0x00000000 || (*( address + i ) & 0x000000ff ) != 0x00000000 ){
+                        flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 );
+                        i++;
+                        j++;
+                    }
+                    flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 );
+                }
+            #else
 
-                if( tailed == false && ERASURE_STATE == *( address + i ) ){
-                    break;
+                if( FILL_STATE != *( address + i ) || tailed ){
+
+                    if( tailed == false && ERASURE_STATE == *( address + i ) ){
+                        break;
+                    }
+                    
+                    tailed = true;
+                    count++;
+                    
+                    if( count > 2 && ( *( address + i ) & 0xff000000) == 0x00000000 ){
+                        tailed = false;
+                        count = 0;
+                    }
+                    
+                    if( flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 ) ){
+                        j++;
+                    }else{
+                        return false;
+                    }
                 }
-                
-                tailed = true;
-                count++;
-                
-                if( count > 2 && ( *( address + i ) & 0xff000000) == 0x00000000 ){
-                    tailed = false;
-                    count = 0;
-                }
-                
-                if( flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 ) ){
-                    j++;
-                }else{
-                    return false;
-                }
-            }
+            
+            #endif
+            
         }
 
         backup_flag( type, true );
@@ -308,7 +326,7 @@ void init_key_value( uint32_t key_value_int32, uint32_t key_value_string, uint32
         }
     #endif
     
-    flash_erase( key_value_int32, 3);
+    flash_erase( key_value_int32, 3 );
     
     if( KEY_VALUE_INT32 != 0 ){                         //Determine whether the address is valid or not, within the chip address range. 
         if( get_backup_flag( UINT32 ) ){
@@ -383,7 +401,8 @@ void check_hash_conflict( int count,...){
             return;
         }
     #else
-        uint32_t array[ 200 ] = { 0 };//Stack overflow may be produced
+        KEY_VALUE_INFO( "Stack overflow may be produced\r\n");
+        static uint32_t array[ 200 ] = { 0 };
     #endif
 
     va_start(ap, count);
@@ -529,11 +548,11 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
         addr = __find_key( ERASURE_STATE, type );
         if( addr && ( uint32_t )( addr + 2 + len / 4 + 1 ) < ( KEY_VALUE_STRINGS + HASH_MAX_SIZE ) ){
             cycleCount = 0;
-            uint32_t variable = 00;
+            uint32_t variable = 0xffffff00;
             if( len % 4 == 0x00 ){
                 flash_write( ( uint8_t * )( &variable ), ( uint32_t )( addr + 2 + len / 4 ), 4 );
             }
-            variable = 0xefffffff;
+            variable = 0xef1234ef;
             flash_write( (uint8_t *)(&variable), (uint32_t)( addr ), 4);
             flash_write( (uint8_t *)(&hash), (uint32_t)( addr + 1 ), 4);
             flash_write( value, (uint32_t)( addr + 2 ), len );
@@ -555,7 +574,7 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
                 flash_write( (const uint8_t *)(&variable), (uint32_t)( key_address ), 4);
                 
                 do{
-                    if( (*( key_address + i ) & 0xff000000) == 0x00000000 ){
+                    if( (*( key_address + i ) & 0xff000000) == 0x00000000 || (*( key_address + i ) & 0x000000ff ) == 0x00000000 ){
                         flash_write( (const uint8_t *)(&variable), (uint32_t)( key_address + i ), 4);
                         break;
                     }
@@ -595,12 +614,3 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
     
     return stat;
 }
-
-
-
-
-
-
-
-
-
