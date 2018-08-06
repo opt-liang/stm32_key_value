@@ -11,20 +11,20 @@
 
 #if KEY_DEBUG
 
-#define KEY_VALUE_INFO( fmt, args... )      SEGGER_RTT_printf( 0, fmt, ##args )     //printf( fmt, ##args )     //rtt(swo)
+#define KEY_VALUE_INFO( fmt, args... ) 	SEGGER_RTT_printf( 0, fmt, ##args )
 #else
 #define KEY_VALUE_INFO( fmt, args... )
 #endif
 
 /************************Simple transplantable flash operation**********************/
 
-#define SYS  true
+#define SYS  false
 #if SYS
 #include "cmsis_os.h"
 SemaphoreHandle_t key_value_SemaphoreHandle;
 #endif
 
-#define HASH_MAX_SIZE   SECTOR_SIZE_MIN
+#define KEY_VALUE_MAX_SIZE   KEY_VALUE_SIZE
 
 enum BACKUP_FLAG{
     BACKUP_FLAG_CLEAR   = BACKUP_FLAG_CLEAR_FLAG,
@@ -42,7 +42,7 @@ void key_value_test( void ){
     volatile uint16_t test_mode = 0x00;
     uint32_t i = 0;
     uint32_t j = 0;
-    for( i = 0; i < 51111; i++ ){
+    for( i = 0; i < 1111111; i++ ){
         if( set_key_value( "key_value_test", UINT32, ( uint8_t * )( &i )) ){
             if( get_key_value( "key_value_test", UINT32, ( uint8_t * )( &j )) && j == i ){
                 KEY_VALUE_INFO( "%d\r\n", j );
@@ -84,14 +84,14 @@ uint32_t* __find_key( uint32_t key, enum TYPE type ){
     //find string value
     if( type == UINT32 ){
         uint32_t *address = (uint32_t *)KEY_VALUE_INT32;
-        for( uint16_t i = 0; i < ( HASH_MAX_SIZE / 8 - 1 ); i ++ ){
+        for( uint16_t i = 0; i < ( KEY_VALUE_MAX_SIZE / 8 - 1 ); i ++ ){
             if( key == *( address + i * 2 ) ){
                 return ( address + i * 2 );
             }
         }
     }else if( type == STRINGS ){
         uint32_t *address = (uint32_t *)KEY_VALUE_STRINGS;
-        for( uint16_t i = 0; i < ( HASH_MAX_SIZE / 4 - 2 ); i ++ ){
+        for( uint16_t i = 0; i < ( KEY_VALUE_MAX_SIZE / 4 - 2 ); i ++ ){
             
             if( key == ERASURE_STATE ){
                 if( key == *( address + i ) ){
@@ -114,7 +114,7 @@ uint32_t* __find_real_key( uint32_t key, enum TYPE type ){
     //find string value
     if( type == UINT32 ){
         uint32_t *address = (uint32_t *)KEY_VALUE_INT32;
-        for( uint16_t i = 0; i < ( HASH_MAX_SIZE / 8 - 1 ); i ++ ){
+        for( uint16_t i = 0; i < ( KEY_VALUE_MAX_SIZE / 8 - 1 ); i ++ ){
             if( key == *( address + i * 2 ) ){
                 realaddress = ( address + i * 2 );
             }else if( *( address + i * 2 ) == ERASURE_STATE ){
@@ -123,7 +123,7 @@ uint32_t* __find_real_key( uint32_t key, enum TYPE type ){
         }
     }else if( type == STRINGS ){
         uint32_t *address = (uint32_t *)KEY_VALUE_STRINGS;
-        for( uint16_t i = 0; i < ( HASH_MAX_SIZE / 4 - 2 ); i ++ ){
+        for( uint16_t i = 0; i < ( KEY_VALUE_MAX_SIZE / 4 - 2 ); i ++ ){
             if( 0xef1234ef == *( address + i ) ){
                 if( key == *( address + i + 1 ) ){
                     realaddress = ( address + i + 1 );
@@ -149,7 +149,7 @@ bool backup_flag( enum TYPE type, bool stat ){
         backup_success = BACKUP_FLAG_CLEAR;
     }
     stat = false;
-    if( flash_write( (const uint8_t *)( &backup_success ), (uint32_t)( KEY_VALUE_BACKUP + HASH_MAX_SIZE - 4 ), 4 ) ){
+    if( flash_write( (const uint8_t *)( &backup_success ), (uint32_t)( KEY_VALUE_BACKUP + KEY_VALUE_MAX_SIZE - 4 ), 4 ) ){
         stat = true;
     }
     return stat;
@@ -158,11 +158,11 @@ bool backup_flag( enum TYPE type, bool stat ){
 uint8_t get_backup_flag( enum TYPE type ){
     bool stat = false;
     if( type == UINT32 ){
-        if( *(uint32_t *)( KEY_VALUE_BACKUP + HASH_MAX_SIZE - 4 ) == UINT32_FLAG ){
+        if( *(uint32_t *)( KEY_VALUE_BACKUP + KEY_VALUE_MAX_SIZE - 4 ) == UINT32_FLAG ){
             stat = true;
         }
     }else if( type == STRINGS ){
-        if( *(uint32_t *)( KEY_VALUE_BACKUP + HASH_MAX_SIZE - 4 ) == STRINGS_FLAG ){
+        if( *(uint32_t *)( KEY_VALUE_BACKUP + KEY_VALUE_MAX_SIZE - 4 ) == STRINGS_FLAG ){
             stat = true;
         }
     }
@@ -188,7 +188,7 @@ bool move_key_value_back( enum TYPE type ){
             }
             stat = true;
         #else
-            if( flash_write( (const uint8_t *)( KEY_VALUE_BACKUP ), (uint32_t)( KEY_VALUE_INT32 ), HASH_MAX_SIZE - 8 ) ){
+            if( flash_write( (const uint8_t *)( KEY_VALUE_BACKUP ), (uint32_t)( KEY_VALUE_INT32 ), KEY_VALUE_MAX_SIZE - 8 ) ){
                 stat = true;
             }
         #endif
@@ -210,7 +210,7 @@ bool move_key_value_back( enum TYPE type ){
             }
             stat = true;
         #else
-            if( flash_write( (const uint8_t *)( KEY_VALUE_BACKUP ), (uint32_t)( KEY_VALUE_STRINGS ), HASH_MAX_SIZE - 8 ) ){
+            if( flash_write( (const uint8_t *)( KEY_VALUE_BACKUP ), (uint32_t)( KEY_VALUE_STRINGS ), KEY_VALUE_MAX_SIZE - 8 ) ){
                 stat = true;
             }
         #endif
@@ -232,7 +232,7 @@ bool move_key_value( enum TYPE type ){
     if( type == UINT32 ){
         
         uint32_t *address = (uint32_t *)KEY_VALUE_INT32;
-        for( uint16_t i = 0, j = 0; i < ( HASH_MAX_SIZE / 8 - 1 ); i ++ ){
+        for( uint16_t i = 0, j = 0; i < ( KEY_VALUE_MAX_SIZE / 8 - 1 ); i ++ ){
 			if( FILL_STATE != *( address + i * 2 ) ){
                 if( ERASURE_STATE == *( address + i * 2 ) ){
                     break;
@@ -262,7 +262,7 @@ bool move_key_value( enum TYPE type ){
             uint8_t count = 0;
         #endif
         
-        for( uint16_t i = 0, j = 0; i < ( HASH_MAX_SIZE / 4 ); i ++ ){
+        for( uint16_t i = 0, j = 0; i < ( KEY_VALUE_MAX_SIZE / 4 ); i ++ ){
             
             #if defined _STM32L_
                 if( 0xef1234ef == *( address + i ) ){
@@ -401,8 +401,7 @@ void check_hash_conflict( int count,...){
             return;
         }
     #else
-        KEY_VALUE_INFO( "Stack overflow may be produced\r\n");
-        static uint32_t array[ 200 ] = { 0 };
+        uint32_t array[ 200 ] = { 0 };//Stack overflow may be produced
     #endif
 
     va_start(ap, count);
@@ -546,7 +545,7 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
         }
         strings_rewrite:
         addr = __find_key( ERASURE_STATE, type );
-        if( addr && ( uint32_t )( addr + 2 + len / 4 + 1 ) < ( KEY_VALUE_STRINGS + HASH_MAX_SIZE ) ){
+        if( addr && ( uint32_t )( addr + 2 + len / 4 + 1 ) < ( KEY_VALUE_STRINGS + KEY_VALUE_MAX_SIZE ) ){
             cycleCount = 0;
             uint32_t variable = 0xffffff00;
             if( len % 4 == 0x00 ){
@@ -579,9 +578,9 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
                         break;
                     }
                     flash_write( (const uint8_t *)(&variable), (uint32_t)( key_address + i++ ), 4);
-                }while( ( uint32_t )( key_address + i ) < ( KEY_VALUE_STRINGS + HASH_MAX_SIZE ) );
+                }while( ( uint32_t )( key_address + i ) < ( KEY_VALUE_STRINGS + KEY_VALUE_MAX_SIZE ) );
                 
-                if( ( uint32_t )( key_address + i ) >= ( KEY_VALUE_STRINGS + HASH_MAX_SIZE ) ){
+                if( ( uint32_t )( key_address + i ) >= ( KEY_VALUE_STRINGS + KEY_VALUE_MAX_SIZE ) ){
                     KEY_VALUE_INFO( "set_key_value Abnormality error\r\n" );
                     goto exe;
                 }else{
@@ -614,3 +613,12 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
     
     return stat;
 }
+
+
+
+
+
+
+
+
+
