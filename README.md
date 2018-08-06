@@ -19,7 +19,7 @@ transplant.h文件配置相应宏
 #define SECTOR_NUM        8                         //stm32f407vet6有8个扇区，因此配置成8，具体可以查询j-flash工具
 
 #define KEY_VALUE_SIZE    ( 128 * 1024 )            //使用了5/6/7扇区，最小一个扇区是128KB，所以填128*1024;如果选择1/2/3扇区，最小一个扇区是
-16KB，那么就填写16*1024
+16KB，那么就填写( 16 * 1024 )
 
 #define FLASH_MAX_SIZE    ( 512 * 1024 )            //stm32f407vet6芯片内部flash大小为512KB
 
