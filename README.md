@@ -4,15 +4,13 @@ ROM:小于3.0KB         RAM:小于或等于16Byte
 
 #stm32_key_value      stm32 f1 f4 L151系列键值对存储；支持4字节整型数据(8Byte/个)，字符串数据（至少12Byte/个）。仅仅支持stm32内部flash存储数据。
 
-transplant.h 配置:
+transplant.h 配置相应宏:
 
 CORTEX_M3表示F1和L151系列
 
 CORTEX_M4表示F4系列
 
 #define _STM32L_            //表示stm32L151系列，因为stm32L系列，stm8S系列，stm8L系列flash属性和F1、F4不一样，因此做特殊处理
-
-transplant.h文件配置相应宏
 
 #define SYS  false                                   //true带freeRTOS   false不带freeRTOS
 
