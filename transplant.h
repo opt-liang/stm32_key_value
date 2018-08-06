@@ -1,7 +1,8 @@
 #ifndef __TRANSPLANT__H
 #define __TRANSPLANT__H
-
 #include <stdbool.h>
+
+#define SYS  false
 
 #define CORTEX_M4
 
@@ -16,7 +17,6 @@
     #include "stm32f4xx_hal.h"
 #endif
 
-
 #if defined _STM32L_
     #define BACKUP_FLAG_CLEAR_FLAG  0x0000ffff
     #define ERASURE_STATE           0x00000000
@@ -26,7 +26,6 @@
     #define ERASURE_STATE           0xffffffff
     #define FILL_STATE              ~ERASURE_STATE
 #endif
-
 
 #define SECTOR_NUM              8
 #define KEY_VALUE_SIZE         ( 128 * 1024 )
