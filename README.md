@@ -4,7 +4,7 @@ ROM:小于3.0KB         RAM:小于或等于16Byte
 
 #stm32_key_value      stm32 f1 f4 L151系列键值对存储；支持4字节整型数据(8Byte/个)，字符串数据（至少12Byte/个）。仅仅支持stm32内部flash存储数据。
 
-配置:
+transplant.h 配置:
 
 CORTEX_M3表示F1和L151系列
 
@@ -25,8 +25,8 @@ transplant.h文件配置相应宏
 
 #define FLASH_END_ADDR    ( FLASH_BASE + FLASH_MAX_SIZE )//最大的flash地址
 
-uint32_t flash_sector_address( int16_t index )      //根据相应stm32芯片内部flash填写这个函数即可，仅仅这个函数需要重写；根据第几个扇区获取当前扇区
-的有效地址。
+transplant.c 移植函数:
+uint32_t flash_sector_address( int16_t index )      //除了transplant.h几个配置宏之外，当stm32内部flash扇区是不规则大小分布的时候，需要重写这个函数。即根据第几个扇区获取当前扇区的首地址。
 
 测试过:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6、stm32f103c8t6 均稳定运行
 
