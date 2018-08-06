@@ -32,9 +32,10 @@ uint32_t flash_sector_address( int16_t index )      //根据相应stm32芯片内
 
 测试过:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6、stm32f103c8t6,运行非常稳定
 
+初始化:init_key_value( ADDRESS_MAPPING(5), ADDRESS_MAPPING(6), ADDRESS_MAPPING(7) );
+
 测试功能:
 void key_value_test( void ){
-        
     volatile uint16_t test_mode = 0x00;
     uint32_t i = 0;
     uint32_t j = 0;
@@ -49,7 +50,6 @@ void key_value_test( void ){
             while( true );
         }
     }
-
     uint32_t test_string = 0;
     uint8_t my_string_test[ 16 ] = "";
     for( uint32_t i = 1111111111; i > 0 ; i-- ){
@@ -72,6 +72,6 @@ void key_value_test( void ){
             while( true );
         }
     }
-}
+ }
 
 
