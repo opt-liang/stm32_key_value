@@ -325,7 +325,7 @@ void init_key_value( uint32_t key_value_int32, uint32_t key_value_string, uint32
         }
     #endif
     
-    flash_erase( key_value_int32, 3 );
+    //flash_erase( key_value_int32, 3 );
     
     if( KEY_VALUE_INT32 != 0 ){                         //Determine whether the address is valid or not, within the chip address range. 
         if( get_backup_flag( UINT32 ) ){
