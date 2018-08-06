@@ -12,7 +12,7 @@ CORTEX_M3表示F1和L151系列
 
 CORTEX_M3表示F4系列
 
-#define _STM32L_            //表示stm32L151系列，因为stm32L系列，stm8S系列，stm8L系列flash属性和F1、F4不一样，因此坐特殊处理
+#define _STM32L_            //表示stm32L151系列，因为stm32L系列，stm8S系列，stm8L系列flash属性和F1、F4不一样，因此做特殊处理
 
 transplant.h文件配置相应宏
 
