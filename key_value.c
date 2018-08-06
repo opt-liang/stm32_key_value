@@ -18,7 +18,6 @@
 
 /************************Simple transplantable flash operation**********************/
 
-#define SYS  false
 #if SYS
 #include "cmsis_os.h"
 SemaphoreHandle_t key_value_SemaphoreHandle;
