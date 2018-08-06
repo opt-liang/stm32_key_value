@@ -1,6 +1,6 @@
 key value 根据关键字取值
 
-ROM:小于3.0KB         RAM:16Byte
+ROM:小于3.0KB         RAM:小于或等于16Byte
 
 #stm32_key_value      stm32 f1 f4 L151系列键值对存储；支持4字节整型数据，字符串数据。仅仅支持stm32内部flash存储数据。
 
