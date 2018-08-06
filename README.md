@@ -32,6 +32,8 @@ uint32_t flash_sector_address( int16_t index )      //根据相应stm32芯片内
 
 初始化:init_key_value( ADDRESS_MAPPING(5), ADDRESS_MAPPING(6), ADDRESS_MAPPING(7) );//stm32f407vet6使用5/6/7扇区分别作为UINT32、STRINGS、备份区域
 
+ROM:小于3.0KB         RAM:16Byte
+
 测试功能:
 void key_value_test( void ){
 
