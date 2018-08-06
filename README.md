@@ -4,8 +4,6 @@ ROM:小于3.0KB         RAM:小于或等于16Byte
 
 #stm32_key_value      stm32 f1 f4 L151系列键值对存储；支持4字节整型数据(8Byte/个)，字符串数据（至少12Byte/个）。仅仅支持stm32内部flash存储数据。
 
-可能产生哈希冲突，需要检测，检查接口  check_hash_conflict( 5, "liang", "zhang", "gan", "hao", "liu" );
-
 配置:
 
 CORTEX_M3表示F1和L151系列
@@ -33,6 +31,8 @@ uint32_t flash_sector_address( int16_t index )      //根据相应stm32芯片内
 测试过:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6、stm32f103c8t6 均稳定运行
 
 初始化:init_key_value( ADDRESS_MAPPING(5), ADDRESS_MAPPING(6), ADDRESS_MAPPING(7) );//stm32f407vet6使用5/6/7扇区分别作为UINT32、STRINGS、备份区域（仅当扇区写满的时候才把当前扇区备份到备份扇区，然后重新覆盖回原来扇区）
+
+可能产生哈希冲突，需要检测，检查接口  check_hash_conflict( 5, "liang", "zhang", "gan", "hao", "liu" );
 
 测试功能:
 void key_value_test( void ){
