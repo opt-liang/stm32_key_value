@@ -149,15 +149,5 @@ bool flash_write( const uint8_t *ramaddr, uint32_t flashaddr, int32_t size ){
     
 }
 
-bool flash_read( int32_t flashaddr , uint8_t *ramBuffer , uint16_t bytesLen ){
-    if( ( flashaddr < FLASH_BASE || flashaddr > FLASH_END_ADDR ) ||  bytesLen == 0){
-        FLASH_INFO("flash_read :ROM address is wrong\r\n");
-        return false;
-    }
-	while( bytesLen -- ){
-	 *( ramBuffer ++ ) = *(( uint8_t* ) flashaddr ++ );
-	}
-    return true;
-}
 
 
