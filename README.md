@@ -28,7 +28,7 @@ transplant.h文件配置相应宏
 uint32_t flash_sector_address( int16_t index )      //根据相应stm32芯片内部flash填写这个函数即可，仅仅这个函数需要重写；根据第几个扇区获取当前扇区
 的有效地址。
 
-测试过:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6、stm32f103c8t6,运行非常稳定
+测试过:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6、stm32f103c8t6 均稳定运行
 
 初始化:init_key_value( ADDRESS_MAPPING(5), ADDRESS_MAPPING(6), ADDRESS_MAPPING(7) );//stm32f407vet6使用5/6/7扇区分别作为UINT32、STRINGS、备份区域
 
