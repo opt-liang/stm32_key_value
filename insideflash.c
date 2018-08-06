@@ -11,51 +11,6 @@
 
 /*******************************flash operation******************************************************/
 
-uint32_t flash_sector_address( int16_t index ){
-    
-    if( index > SECTOR_NUM ){
-        FLASH_INFO( "Fan area index error\r\n" );
-        while( true );
-    }
-    
-    uint32_t realaddr = FLASH_BASE;
-    
-    #if defined M3
-        realaddr += ( index ) * SECTOR_SIZE_MIN;
-    #else
-        //stm32f407ve
-        if( index > 0 ){
-            realaddr += ( index > 3 ? 4 : index ) * 16 * 1024;
-        }
-        if( index > 4 ){
-            realaddr += 1 * 64 * 1024;
-        }
-        if( index > 5 ){
-            realaddr += ( index - 5 ) * 128 * 1024;
-        }
-    #endif
-    
-    return realaddr;
-}
-
-bool flash_legal_sector_address( int32_t flashaddr ){
-    for( uint16_t i = 0; i < SECTOR_NUM; i++ ){
-        if( flashaddr == flash_sector_address( i ) ){
-            return true;
-        }
-    }
-    return false;
-}
-
-int16_t flash_sector_index( uint32_t flashaddr ){
-    for( int16_t i = 0; i < SECTOR_NUM; i++ ){
-        if( flashaddr == flash_sector_address( i ) ){
-            return i;
-        }
-    }
-    return -1;
-}
-
 
 bool flash_erase( int32_t flashaddr, uint32_t page ){
     
@@ -66,7 +21,7 @@ bool flash_erase( int32_t flashaddr, uint32_t page ){
 
     FLASH_EraseInitTypeDef f;
     
-    #if defined M3
+    #if defined CORTEX_M3
         f.TypeErase = FLASH_TYPEERASE_PAGES;
         
         f.PageAddress = flashaddr;
@@ -93,7 +48,7 @@ reerase:
     __disable_irq();
     HAL_FLASH_Unlock();
     
-    #if defined M3
+    #if defined CORTEX_M3
         #if !defined _STM32L_
             __HAL_FLASH_CLEAR_FLAG( FLASH_FLAG_BSY | FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPERR );
         #else
@@ -119,7 +74,7 @@ reerase:
     }
     
     uint8_t *eraseaddr = (uint8_t *)flashaddr;
-    for( uint32_t i = 0; i < page * SECTOR_SIZE_MIN ; i ++ ){
+    for( uint32_t i = 0; i < page * KEY_VALUE_SIZE ; i ++ ){
         if( eraseaddr[ i ] != (uint8_t) ERASURE_STATE ){
             return false;
         }
@@ -140,7 +95,7 @@ bool flash_write( const uint8_t *ramaddr, uint32_t flashaddr, int32_t size ){
         return false;
     }
 	
-	if( size > SECTOR_SIZE_MIN ){
+	if( size > KEY_VALUE_SIZE ){
 		FLASH_INFO("The amount of data is too large\r\n");
 		return false;
 	}
@@ -153,7 +108,7 @@ bool flash_write( const uint8_t *ramaddr, uint32_t flashaddr, int32_t size ){
     __disable_irq();
     HAL_FLASH_Unlock();
     
-    #if defined M3
+    #if defined CORTEX_M3
         #if !defined _STM32L_
             __HAL_FLASH_CLEAR_FLAG( FLASH_FLAG_BSY | FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPERR );
         #else
