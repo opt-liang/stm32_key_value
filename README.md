@@ -50,6 +50,7 @@ void key_value_test( void ){
             while( true );
         }
     }
+    
     uint32_t test_string = 0;
     uint8_t my_string_test[ 16 ] = "";
     for( uint32_t i = 1111111111; i > 0 ; i-- ){
