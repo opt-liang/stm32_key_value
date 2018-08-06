@@ -1,20 +1,13 @@
-#stm32_key_value
+key value 根据关键字取值
 
-使用stm32内部flash作为键值对的存储，掉电保存数据
+#stm32_key_value      stm32 f1 f4 L151系列键值对存储；支持4字节整型数据，字符串类型。仅仅支持stm32内部flash存储数据。
 
-可能产生哈希冲突，需要检测，检查接口check_hash_conflict( 5, "liang", "zhang", "gan", "hao", "liu" );
+友情链接:支持外部flash存储的另一个开源项目https://github.com/armink/EasyFlash.git
 
-只能存储UINT32整型数据和可见字符串数据
+可能产生哈希冲突，需要检测，检查接口  check_hash_conflict( 5, "liang", "zhang", "gan", "hao", "liu" );
 
-初始化:
+配置:
 
-#define  ADDRESS_MAPPING(X)         (0x8000000+X*2*1024)   //flash扇区
 
-init_key_value( ADDRESS_MAPPING(116), ADDRESS_MAPPING(117), ADDRESS_MAPPING(118) );
-
-基于freeRTOS系实时操作系统，使用互斥信号量来使用set和get value
-
-芯片使用的是stm32f103rc系列芯片，如果不一样需要配置芯片flash大小，扇区初始化也相应就行修改
-
-测试过:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6,运行非常稳定
+测试过:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6、stm32f103c8t6,运行非常稳定
 
