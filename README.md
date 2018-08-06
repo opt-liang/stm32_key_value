@@ -2,7 +2,7 @@ key value 根据关键字取值
 
 ROM:小于3.0KB         RAM:小于或等于16Byte
 
-#stm32_key_value      stm32 f1 f4 L151系列键值对存储；支持4字节整型数据，字符串数据。仅仅支持stm32内部flash存储数据。
+#stm32_key_value      stm32 f1 f4 L151系列键值对存储；支持4字节整型数据(8Byte/个)，字符串数据（至少12Byte/个）。仅仅支持stm32内部flash存储数据。
 
 可能产生哈希冲突，需要检测，检查接口  check_hash_conflict( 5, "liang", "zhang", "gan", "hao", "liu" );
 
