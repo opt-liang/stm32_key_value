@@ -21,7 +21,6 @@ transplant.h文件配置相应宏
 #define SECTOR_NUM        8                         //stm32f407vet6有8个扇区，因此配置成8，具体可以查询j-flash工具
 
 #define KEY_VALUE_SIZE    ( 128 * 1024 )            //使用了5/6/7扇区，最小一个扇区是128KB，所以填128*1024;如果选择1/2/3扇区，最小一个扇区是
-
 16KB，那么就填写16*1024
 
 #define FLASH_MAX_SIZE    ( 512 * 1024 )            //stm32f407vet6芯片内部flash大小为512KB
@@ -29,7 +28,6 @@ transplant.h文件配置相应宏
 #define FLASH_END_ADDR    ( FLASH_BASE + FLASH_MAX_SIZE )//最大的flash地址
 
 uint32_t flash_sector_address( int16_t index )      //根据相应stm32芯片内部flash填写这个函数即可，仅仅这个函数需要重写；根据第几个扇区获取当前扇区
-
 的有效地址。
 
 测试过:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6、stm32f103c8t6,运行非常稳定
