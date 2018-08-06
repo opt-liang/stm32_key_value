@@ -26,7 +26,7 @@ transplant.h文件配置相应宏
 #define FLASH_END_ADDR    ( FLASH_BASE + FLASH_MAX_SIZE )//最大的flash地址
 
 transplant.c 移植函数:
-uint32_t flash_sector_address( int16_t index )      //除了transplant.h几个配置宏之外，当stm32内部flash扇区是不规则大小分布的时候，需要重写这个函数。即根据第几个扇区获取当前扇区的首地址。
+uint32_t flash_sector_address( int16_t index )      //除了配置transplant.h宏之外，当stm32内部flash扇区是不规则大小分布的时候，需要重写这个函数。即根据第几个扇区获取当前扇区的首地址。
 
 测试过:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6、stm32f103c8t6 均稳定运行
 
