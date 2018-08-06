@@ -36,6 +36,7 @@ uint32_t flash_sector_address( int16_t index )      //根据相应stm32芯片内
 
 测试功能:
 void key_value_test( void ){
+
     volatile uint16_t test_mode = 0x00;
     uint32_t i = 0;
     uint32_t j = 0;
