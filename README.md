@@ -35,6 +35,7 @@ uint32_t flash_sector_address( int16_t index )      //除了配置transplant.h�
 可能产生哈希冲突，需要检测，检查接口  check_hash_conflict( 5, "liang", "zhang", "gan", "hao", "liu" );
 
 测试函数（初始化key_value后直接调用测试函数测试即可）:
+
 void key_value_test( void ){
 
     volatile uint16_t test_mode = 0x00;
