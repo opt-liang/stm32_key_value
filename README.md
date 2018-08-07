@@ -77,4 +77,21 @@ void key_value_test( void ){
     }
  }
 
+例子(统计stm32设备重启次数):
+
+void reboot_times_history_info( void ){
+
+    uint32_t reboot_times = 0;
+    
+    get_key_value( "reboot_times", UINT32, (uint8_t *)(&reboot_times) );
+    
+    LOG_INFO( "reboot_times_history_info: %d\r\n", reboot_times );
+    
+    reboot_times ++;
+    
+    set_key_value( "reboot_times", UINT32, (uint8_t *)(&reboot_times) );
+
+}
+
+
 友情链接:支持外部flash存储的另一个开源项目https://github.com/armink/EasyFlash.git
