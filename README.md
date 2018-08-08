@@ -28,7 +28,7 @@ CORTEX_M4表示F4系列
 二、transplant.c 移植函数
 uint32_t flash_sector_address( int16_t index )      //除了配置transplant.h宏之外，当stm32内部flash扇区是不规则大小分布的时候，需要重写这个函数。即根据第几个扇区获取当前扇区的首地址。
 
-测试:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6、stm32f103c8t6 均稳定运行
+测试过:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6、stm32f103c8t6、stm32l151rct6芯片; 均稳定运行
 
 初始化:init_key_value( ADDRESS_MAPPING(5), ADDRESS_MAPPING(6), ADDRESS_MAPPING(7) );//stm32f407vet6使用5/6/7扇区分别作为UINT32、STRINGS、备份区域（仅当扇区写满的时候才把当前扇区备份到备份扇区，然后重新覆盖回原来扇区，2KB扇区最多只能存储255(2048/8 - 1)个不同key的4Byte整型数据）
 
