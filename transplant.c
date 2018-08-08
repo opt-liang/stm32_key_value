@@ -10,7 +10,7 @@ uint32_t flash_sector_address( int16_t index ){
     
     uint32_t realaddr = FLASH_BASE;
     
-    #if defined M3
+    #if defined CORTEX_M3
         realaddr += ( index ) * KEY_VALUE_SIZE;
     #else
         //stm32f407ve       16 16 16 16 64 128 128 128
