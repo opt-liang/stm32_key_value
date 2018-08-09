@@ -337,7 +337,6 @@ bool move_key_value( enum TYPE type ){
                         j++;
                     }
                     flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 );
-                    i++;
                     j++;
                 }
             #else
