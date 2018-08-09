@@ -3,7 +3,7 @@
 
 uint32_t flash_sector_address( int16_t index ){
     
-    if( index > SECTOR_NUM ){
+    if( index > SECTOR_TOTAL_NUM || index < 1 ){
         printf( "Fan area index error\r\n" );
         while( true );
     }
@@ -29,7 +29,7 @@ uint32_t flash_sector_address( int16_t index ){
 }
 
 bool flash_legal_sector_address( int32_t flashaddr ){
-    for( uint16_t i = 0; i < SECTOR_NUM; i++ ){
+    for( uint16_t i = 1; i < SECTOR_TOTAL_NUM; i++ ){
         if( flashaddr == flash_sector_address( i ) ){
             return true;
         }
@@ -38,7 +38,7 @@ bool flash_legal_sector_address( int32_t flashaddr ){
 }
 
 int16_t flash_sector_index( uint32_t flashaddr ){
-    for( int16_t i = 0; i < SECTOR_NUM; i++ ){
+    for( int16_t i = 1; i < SECTOR_TOTAL_NUM; i++ ){
         if( flashaddr == flash_sector_address( i ) ){
             return i;
         }
