@@ -17,7 +17,9 @@ CORTEX_M4表示F4系列
 #define SYS  false                                   //true带freeRTOS   false不带freeRTOS
 
 #define STRINGS_HEAD_FLAG   0xef1234ef              //default
+
 #define UINT32_INIT_FLAG    0x1024                  //default
+
 #define STRINGS_INIT_FLAG   "OK"                    //default
 
 #define SECTOR_NUM              1                   //stm32l151系列，一个扇区只有256Byte，1表示仅用一个扇区存储数据
