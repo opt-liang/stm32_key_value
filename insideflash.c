@@ -73,12 +73,12 @@ reerase:
         goto reerase;
     }
     
-    uint8_t *eraseaddr = (uint8_t *)flashaddr;
-    for( uint32_t i = 0; i < page * KEY_VALUE_SIZE ; i ++ ){
-        if( eraseaddr[ i ] != (uint8_t) ERASURE_STATE ){
-            return false;
-        }
-    }
+//    uint8_t *eraseaddr = (uint8_t *)flashaddr;
+//    for( uint32_t i = 0; i < page * KEY_VALUE_SIZE ; i ++ ){
+//        if( eraseaddr[ i ] != (uint8_t) ERASURE_STATE ){
+//            return false;
+//        }
+//    }
     
     return true;
 }
@@ -95,10 +95,10 @@ bool flash_write( const uint8_t *ramaddr, uint32_t flashaddr, int32_t size ){
         return false;
     }
 	
-	if( size > KEY_VALUE_SIZE ){
-		FLASH_INFO("The amount of data is too large\r\n");
-		return false;
-	}
+//	if( size > KEY_VALUE_SIZE ){
+//		FLASH_INFO("The amount of data is too large\r\n");
+//		return false;
+//	}
 	
     uint32_t currentflashAddr   = flashaddr;
     const uint8_t  *currentram  = ramaddr;
