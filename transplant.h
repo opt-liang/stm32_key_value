@@ -7,7 +7,7 @@
 #define CORTEX_M4
 
 #if defined CORTEX_M3
-//    #define _STM32L_
+    //#define _STM32L_
     #if defined _STM32L_
         #include "stm32l1xx_hal.h"
     #else
@@ -16,6 +16,10 @@
 #else
     #include "stm32f4xx_hal.h"
 #endif
+
+#define STRINGS_HEAD_FLAG   0xef1234ef
+#define UINT32_INIT_FLAG    0x1024
+#define STRINGS_INIT_FLAG   "OK"
 
 #if defined _STM32L_
     #define BACKUP_FLAG_CLEAR_FLAG  0x0000ffff
@@ -27,8 +31,9 @@
     #define FILL_STATE              ~ERASURE_STATE
 #endif
 
-#define SECTOR_NUM              8
-#define KEY_VALUE_SIZE         ( 128 * 1024 )
+#define SECTOR_NUM              1
+#define SECTOR_TOTAL_NUM        8
+#define KEY_VALUE_SIZE          ( 128*1024 )
 
 #define FLASH_MAX_SIZE          ( 512 * 1024 )
 #define FLASH_END_ADDR          ( FLASH_BASE + FLASH_MAX_SIZE )
