@@ -56,7 +56,7 @@ void init_key_value( uint32_t key_value_int32, uint32_t key_value_string, uint32
         }
     #endif
     
-    #if 1
+    #if 0
         if( KEY_VALUE_INT32 )
             flash_erase( key_value_int32, SECTOR_NUM );
         if( KEY_VALUE_STRINGS )
@@ -121,7 +121,7 @@ void key_value_test( void ){
 
     uint32_t test_string = 0;
     uint8_t my_string_test[ 16 ] = "";
-    for( uint32_t i = 1111111111; i > 0 ; i-- ){
+    for( uint32_t i = 0; i < 1111111111 ; i++ ){
         memset( my_string_test, 0, 16 );
         sprintf( (char *)my_string_test, "%d\r\n", i );
         if( set_key_value( "my_string_test", STRINGS, my_string_test ) ){
@@ -160,7 +160,13 @@ uint32_t* __find_key( uint32_t key, enum TYPE type ){
             
             if( key == ERASURE_STATE ){
                 if( key == *( address + i ) ){
-                    return ( address + i );
+                    if( i == 0 || (*( address + i - 1 ) & 0xff000000) == 0x00000000 || (*( address + i - 1 ) & 0x000000ff ) == 0x00000000 ){
+                        return ( address + i );
+                    }else{
+                        uint32_t variable = 0xffffff00;
+                        flash_write( ( uint8_t * )( &variable ), ( uint32_t )(address + i), 4 );
+                        return ( address + i + 1 );
+                    }
                 }
             }else{
                 if( STRINGS_HEAD_FLAG == *( address + i ) ){
@@ -645,6 +651,4 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
     
     return stat;
 }
-
-
 
