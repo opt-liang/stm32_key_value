@@ -47,7 +47,7 @@ uint32_t flash_sector_address( int16_t index )      //除了配置transplant.h�
 
 测试过:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6、stm32f103c8t6、stm32l151rct6芯片; 均稳定运行
 
-存储原理：由key字符串生成一个4字节整型hash值，然后通过hash值找到相应的key的value值。（只有STRINGS的key的value值与key的hash值有可能产生冲突，概率很小）；UINT32、STRINGS、备份区域（仅当UINT32或STRINGS扇区写满的时候才把当前扇区备份到备份扇区，然后重新覆盖回原来扇区，2KB扇区最多只能存储255(2048/8 - 1)个不同key的4Byte整型数据）
+存储原理：由key字符串生成一个4字节整型hash值，然后通过hash值找到相应的key的value值。（只有STRINGS的key的value值与key的hash值有可能产生冲突，概率很小）；UINT32、STRINGS、备份区域（仅当UINT32或STRINGS扇区写满的时候才把当前扇区备份到备份扇区，然后重新覆盖回原来扇区，一个扇区（2KB）最多只能存储255(2048/8 - 1)个不同key的4Byte整型数据）
 
 初始化:init_key_value( ADDRESS_MAPPING(5), ADDRESS_MAPPING(6), ADDRESS_MAPPING(7) );
 
