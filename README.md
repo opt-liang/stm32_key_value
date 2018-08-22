@@ -54,15 +54,13 @@ uint32_t flash_sector_address( int16_t index )      //除了配置transplant.h�
 
 **************************************************************************************************************************
 
-测试:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6、stm32f103c8t6、stm32l151rct6芯片; 均稳定运行
-
 初始化:init_key_value( ADDRESS_MAPPING(5), ADDRESS_MAPPING(6), ADDRESS_MAPPING(7) );
 
 不同key生成的hash值有可能一样，所以需要检测所有key生成的hash值是否有冲突。
 
 检查hash冲突接口：check_hash_conflict( 5, "liang", "zhang", "gan", "hao", "liu" );
 
-测试函数（初始化key_value后直接调用测试函数测试即可）:
+测试函数（初始化key_value后直接调用测试函数测试即可，测试:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6、stm32f103c8t6、stm32l151rct6芯片; 均稳定运行）：
 
 void key_value_test( void ){
 
