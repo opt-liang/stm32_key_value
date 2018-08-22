@@ -1,6 +1,7 @@
 key value 根据关键字取值
 
 特点：
+
 存储要求：ROM:小于3.0KB         RAM:小于或等于16Byte
 
 flash操作：减少内部flash擦除次数，延长flash寿命
