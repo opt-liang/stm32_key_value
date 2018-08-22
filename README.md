@@ -1,8 +1,15 @@
 key value 根据关键字取值
 
-ROM:小于3.0KB         RAM:小于或等于16Byte
+特点：
+存储要求：ROM:小于3.0KB         RAM:小于或等于16Byte
+flash操作：减少内部flash擦除次数，延长flash寿命
+存储功能：扇区写满后，能够保证数据百分百备份成功。仅仅支持stm32内部flash存储数据。
 
-#stm32_key_value      stm32 f1 f4 L151系列键值对存储；支持4字节整型数据(占用8Byte/个UINT32)，字符串数据（至少占用12Byte/个STRINGS）。仅仅支持stm32内部flash存储数据。
+缺点：有可能更新某个key的值的时候刚好掉电，那相应key的值有可能丢失；例如：新的key的hash值没写成功，则旧的key的值还可以使用，如果新的key已经写了hash值，value值没写成功就掉电了，那么新的key的值就丢失了，需要程序判断是否正常。
+
+存储原理：由key字符串生成一个4字节整型hash值，然后通过hash值找到相应的key的value值（key的hash值和value值都存储在内部flash）。（只有STRINGS的key的value值与key的hash值有可能产生冲突，概率非常小）；当更新某个key的value值的时候，先把新的key的hash和value值写到flash，然后再把旧的key的hash和value值擦除(向flash写0x00(stm32f1或stm32f4系列)或0xff(stm32l系列)，防止数据丢失）；UINT32、STRINGS、备份区域（仅当UINT32或STRINGS扇区写满的时候才把当前扇区备份到备份扇区，然后重新覆盖回原来扇区（覆盖有防止丢失功能，能够保证覆盖百分百完成）；一个扇区（2KB）最多只能存储255(2048/8 - 1)个不同key的4Byte整型数据）
+
+stm32_key_value     stm32 f1 f4 L151系列键值对存储；支持4字节整型数据(占用8Byte/个UINT32)，字符串数据（至少占用12Byte/个STRINGS）。
 
 **************************************************************************************************************************
 
@@ -42,12 +49,9 @@ CORTEX_M4表示F4系列
 二、transplant.c 移植函数
 uint32_t flash_sector_address( int16_t index )      //除了配置transplant.h宏之外，当stm32内部flash扇区是不规则大小分布的时候，需要重写这个函数。举例：stm32f103rct6内部flash的每个扇区都是2KB，因此stm32f103rct6不需要重写这个函数；但stm32f407vet6内部flash分别是16/16/16/16/64/128/128/128，其内部flash扇区为不规则大小；因此stm32f407vet6需要移植这个函数，即根据第几个扇区获取当前扇区的首地址（函数功能）。
 
-
 **************************************************************************************************************************
 
-测试过:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6、stm32f103c8t6、stm32l151rct6芯片; 均稳定运行
-
-存储原理：由key字符串生成一个4字节整型hash值，然后通过hash值找到相应的key的value值。（只有STRINGS的key的value值与key的hash值有可能产生冲突，概率很小）；UINT32、STRINGS、备份区域（仅当UINT32或STRINGS扇区写满的时候才把当前扇区备份到备份扇区，然后重新覆盖回原来扇区，一个扇区（2KB）最多只能存储255(2048/8 - 1)个不同key的4Byte整型数据）
+测试:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6、stm32f103c8t6、stm32l151rct6芯片; 均稳定运行
 
 初始化:init_key_value( ADDRESS_MAPPING(5), ADDRESS_MAPPING(6), ADDRESS_MAPPING(7) );
 
