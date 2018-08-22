@@ -12,7 +12,7 @@ flash操作：减少内部flash擦除次数，延长flash寿命
 
 缺点：有可能更新某个key的值的时候刚好掉电，那相应key的值有可能丢失；例如：新的key的hash值没写成功，则旧的key的值还可以使用，如果新的key已经写了hash值，value值没写成功就掉电了，那么新的key的值就丢失了，需要程序判断相应key的value值是否正常（存在断电丢失一个key的值的风险）。
 
-存储原理：由key字符串生成一个4字节整型hash值，然后通过hash值找到相应的key的value值（key的hash值和value值都存储在内部flash）。（只有STRINGS的key的value值与key的hash值有可能产生冲突，概率非常小）；当更新某个key的value值的时候，先把新的key的hash和value值写到flash，然后再把旧的key的hash和value值擦除(向flash写0x00(stm32f1或stm32f4系列)或0xff(stm32l系列)，防止数据丢失）；UINT32、STRINGS、备份区域（仅当UINT32或STRINGS扇区写满的时候才把当前扇区备份到备份扇区，然后重新覆盖回原来扇区（覆盖有防止丢失功能，能够保证覆盖百分百完成）；一个扇区（2KB）最多只能存储255(2048/8 - 1)个不同key的4Byte整型数据）
+存储原理：由key字符串生成一个4字节整型hash值，然后通过hash值找到相应的key的value值（key的hash值和value值都存储在内部flash）。（只有STRINGS的key的value值与key的hash值有可能产生冲突，概率非常小）；当更新某个key的value值的时候，先把新的key的hash和value值写到flash，然后再把旧的key的hash和value值擦除(向flash写0x00(stm32f1或stm32f4系列)或0xff(stm32l系列)，防止数据丢失）；UINT32、STRINGS、备份区域（仅当UINT32或STRINGS扇区写满的时候才把当前扇区备份到备份扇区，然后重新覆盖回原来扇区（覆盖有防止断电丢失数据，能够保证覆盖百分百完成）；一个扇区（2KB）最多只能存储255(2048/8 - 1)个不同key的4Byte整型数据）
 
 **************************************************************************************************************************
 
