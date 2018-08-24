@@ -121,5 +121,3 @@ void reboot_times_history_info( void ){
 
 }
 
-
-友情链接:支持外部flash存储的另一个开源项目https://github.com/armink/EasyFlash.git
