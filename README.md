@@ -121,3 +121,15 @@ void reboot_times_history_info( void ){
 
 }
 
+例子（获取一个随机数）:
+unsigned char _alpu_rand(void){
+    uint32_t RAND_SEED = 255;
+    get_key_value( "RAND_SEED", UINT32, (uint8_t *)&RAND_SEED );
+    RAND_SEED = RAND_SEED * 1103515845 + 3721;
+    set_key_value( "RAND_SEED", UINT32, (uint8_t *)&RAND_SEED );
+    return (RAND_SEED/9527) % 32768;
+}
+
+
+
+
