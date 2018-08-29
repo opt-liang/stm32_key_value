@@ -66,7 +66,7 @@ void init_key_value( uint32_t key_value_int32, uint32_t key_value_string, uint32
     
     BubbleSort( array, 3 );
     
-    if( ( array[0] + SECTOR_NUM * KEY_VALUE_SIZE) > array[1] || ( array[1] + SECTOR_NUM * KEY_VALUE_SIZE) > array[2] ){
+    if( ( array[0] != 0 && ( array[0] + SECTOR_NUM * KEY_VALUE_SIZE) > array[1] ) || ( array[1] + SECTOR_NUM * KEY_VALUE_SIZE) > array[2] ){
         KEY_VALUE_INFO("System allocation error exists cross flash memory\r\n");
         while( true );
     }
