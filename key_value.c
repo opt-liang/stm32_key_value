@@ -40,6 +40,21 @@ bool backup_flag( enum TYPE type, bool stat );
 uint8_t get_backup_flag( enum TYPE type );
 bool move_key_value_back( enum TYPE type );
 
+void BubbleSort( uint32_t array[], int n ){
+    int i, j , flag =1;
+    uint32_t temp;
+    for( i = 1; i < n && flag == 1; i ++ ){
+        flag = 0;
+        for( j = 0; j < n - i ; j ++ ){
+            if( array[j] > array[j+1] ){
+                flag = 1;
+                temp = array[j];
+                array[j] = array[j+1];
+                array[j+1] = temp;
+            }
+        }
+    }
+}
 
 void init_key_value( uint32_t key_value_int32, uint32_t key_value_string, uint32_t key_value_backup ){
 
@@ -47,6 +62,15 @@ void init_key_value( uint32_t key_value_int32, uint32_t key_value_string, uint32
     KEY_VALUE_STRINGS = key_value_string;
 	KEY_VALUE_BACKUP = key_value_backup;
     
+    uint32_t array[3] = { key_value_int32, key_value_string, key_value_backup };
+    
+    BubbleSort( array, 3 );
+    
+    if( ( array[0] + SECTOR_NUM * KEY_VALUE_SIZE) > array[1] || ( array[1] + SECTOR_NUM * KEY_VALUE_SIZE) > array[2] ){
+        KEY_VALUE_INFO("System allocation error exists cross flash memory\r\n");
+        while( true );
+    }
+
     #if SYS
         key_value_SemaphoreHandle = xSemaphoreCreateBinary();//signal
         xSemaphoreGive( key_value_SemaphoreHandle );
@@ -64,7 +88,7 @@ void init_key_value( uint32_t key_value_int32, uint32_t key_value_string, uint32
         if( KEY_VALUE_BACKUP )
             flash_erase( key_value_backup, SECTOR_NUM );
     #endif
-        
+    
     uint32_t uint32_flag = 0;
     uint32_t strings_flag = 0;
     
