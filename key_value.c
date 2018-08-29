@@ -107,7 +107,7 @@ void key_value_test( void ){
     volatile uint16_t test_mode = 0x00;
     uint32_t i = 0;
     uint32_t j = 0;
-    for( i = 0; i < 21111; i++ ){
+    for( i = 0; i < 2111111; i++ ){
         if( set_key_value( "key_value_test", UINT32, ( uint8_t * )( &i )) ){
             if( get_key_value( "key_value_test", UINT32, ( uint8_t * )( &j )) && j == i ){
                 KEY_VALUE_INFO( "%d\r\n", j );
@@ -473,8 +473,8 @@ bool get_key_value( char *key, enum TYPE type , uint8_t *value ){
         static int16_t local_flag = 0;
         if( local_flag == 0 ){
             xSemaphoreTake( key_value_SemaphoreHandle, portMAX_DELAY );
-            local_flag ++;
         }
+        local_flag ++;
     #endif
     
     int hash = aphash( key );//Possible strings generate hash conflicts
@@ -501,7 +501,8 @@ bool get_key_value( char *key, enum TYPE type , uint8_t *value ){
     }
     
     #if SYS
-        if( --local_flag == 0 ){
+        local_flag--;
+        if( local_flag == 0 ){
             xSemaphoreGive( key_value_SemaphoreHandle );
         }
     #endif
@@ -546,10 +547,10 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
             uint32_t* key_address = NULL;
             UINT32_CHECK:
             key_address = __find_key( hash, type );
-            if( key_address && *(key_address + 1) != *( uint32_t *)(value) ){
+            if( key_address &&  addr != key_address ){//( *(key_address + 1) != *( uint32_t *)(value)) ){
                 uint32_t variable = FILL_STATE;
                 flash_write( (const uint8_t *)(&variable), (uint32_t)( key_address ), 4);           //flash write 0
-//                flash_write( (const uint8_t *)(&variable), (uint32_t)( key_address + 1 ), 4);       //+4
+                flash_write( (const uint8_t *)(&variable), (uint32_t)( key_address + 1 ), 4);       //+4
                 goto UINT32_CHECK;
             }
         }else{
@@ -604,7 +605,7 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
             
             key_address = __find_key( hash, type );
             
-            if( key_address && memcmp( (uint8_t *)(key_address+1), value, len ) ){
+            if( key_address && addr != (key_address-1) ){   //memcmp( (uint8_t *)(key_address+1), value, len ) ){
                 uint16_t i = 1;
                 uint32_t variable = FILL_STATE;
                 flash_write( (const uint8_t *)(&variable), (uint32_t)( key_address - 1 ), 4);
@@ -651,4 +652,3 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
     
     return stat;
 }
-
