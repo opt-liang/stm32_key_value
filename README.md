@@ -1,3 +1,5 @@
+#If you feel good, give it to a star.
+
 key value 根据关键字取值
 
 stm32_key_value     stm32 f1 f4 L151系列键值对存储；支持4字节整型数据(占用8Byte/个UINT32)，字符串数据（至少占用12Byte/个STRINGS）。
