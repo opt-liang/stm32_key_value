@@ -35,6 +35,7 @@ enum BACKUP_FLAG{
 uint32_t KEY_VALUE_INT32 = 0;
 uint32_t KEY_VALUE_BACKUP = 0;
 uint32_t KEY_VALUE_STRINGS = 0;
+uint8_t rewrite_times = 0;
 
 bool backup_flag( enum TYPE type, bool stat );
 uint8_t get_backup_flag( enum TYPE type );
@@ -128,24 +129,24 @@ void init_key_value( uint32_t key_value_int32, uint32_t key_value_string, uint32
 
 void key_value_test( void ){
         
-    volatile uint16_t test_mode = 0x00;
-    uint32_t i = 0;
-    uint32_t j = 0;
-    for( i = 0; i < 2111111; i++ ){
-        if( set_key_value( "key_value_test", UINT32, ( uint8_t * )( &i )) ){
-            if( get_key_value( "key_value_test", UINT32, ( uint8_t * )( &j )) && j == i ){
-                KEY_VALUE_INFO( "%d\r\n", j );
-            }else{
-                while( true );
-            }
-        }else{
-            while( true );
-        }
-    }
+//    volatile uint16_t test_mode = 0x00;
+//    uint32_t i = 0;
+//    uint32_t j = 0;
+//    for( i = 0; i < 21111; i++ ){
+//        if( set_key_value( "key_value_test", UINT32, ( uint8_t * )( &i )) ){
+//            if( get_key_value( "key_value_test", UINT32, ( uint8_t * )( &j )) && j == i ){
+//                KEY_VALUE_INFO( "%d\r\n", j );
+//            }else{
+//                while( true );
+//            }
+//        }else{
+//            while( true );
+//        }
+//    }
 
     uint32_t test_string = 0;
     uint8_t my_string_test[ 16 ] = "";
-    for( uint32_t i = 0; i < 1111111111 ; i++ ){
+    for( uint32_t i = 0; i < 211111; i++ ){
         memset( my_string_test, 0, 16 );
         sprintf( (char *)my_string_test, "%d\r\n", i );
         if( set_key_value( "my_string_test", STRINGS, my_string_test ) ){
@@ -352,16 +353,16 @@ bool move_key_value( enum TYPE type ){
         
         uint32_t *address = (uint32_t *)KEY_VALUE_STRINGS;
         
-        #if !defined _STM32L_
-            bool tailed = false;
-            uint8_t count = 0;
-        #endif
+//        #if !defined _STM32L_
+//            bool tailed = false;
+//            uint8_t count = 0;
+//        #endif
         
         for( uint16_t i = 0, j = 0; i < ( KEY_VALUE_MAX_SIZE / 4 ); i ++ ){
             
             #if defined _STM32L_
                 if( STRINGS_HEAD_FLAG == *( address + i ) ){
-                    while( (*( address + i ) & 0xff000000) != 0x00000000 && (*( address + i ) & 0x000000ff ) != 0x00000000 ){
+                    while( (*( address + i ) & 0xff000000) != 0x00000000 && (*( address + i ) & 0x000000ff ) != 0x00000000 && i < ( KEY_VALUE_MAX_SIZE / 4 ) ){
                         flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 );
                         i++;
                         j++;
@@ -370,27 +371,35 @@ bool move_key_value( enum TYPE type ){
                     j++;
                 }
             #else
-
-                if( FILL_STATE != *( address + i ) || tailed ){
-
-                    if( tailed == false && ERASURE_STATE == *( address + i ) ){
-                        break;
-                    }
-                    
-                    tailed = true;
-                    count++;
-                    
-                    if( count > 2 && ( *( address + i ) & 0xff000000) == 0x00000000 ){
-                        tailed = false;
-                        count = 0;
-                    }
-                    
-                    if( flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 ) ){
+                if( STRINGS_HEAD_FLAG == *( address + i ) ){
+                    while( (*( address + i ) & 0xff000000) != 0x00000000 && (*( address + i ) & 0x000000ff ) != 0x00000000 && i < ( KEY_VALUE_MAX_SIZE / 4 ) ){
+                        flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 );
+                        i++;
                         j++;
-                    }else{
-                        return false;
                     }
+                    flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 );
+                    j++;
                 }
+//                if( FILL_STATE != *( address + i ) || tailed ){
+
+//                    if( tailed == false && ERASURE_STATE == *( address + i ) ){
+//                        break;
+//                    }
+//                    
+//                    tailed = true;
+//                    count++;
+//                    
+//                    if( count > 2 && ( *( address + i ) & 0xff000000) == 0x00000000 ){
+//                        tailed = false;
+//                        count = 0;
+//                    }
+//                    
+//                    if( flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 ) ){
+//                        j++;
+//                    }else{
+//                        return false;
+//                    }
+//                }
             
             #endif
             
@@ -566,7 +575,22 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
 			//compare real value
 			if( *(addr) == hash && *((addr + 1) ) == *((uint32_t *)value) ){
                 stat = true;
-			}
+			}else{
+                //erase
+                uint32_t variable = FILL_STATE;
+                flash_write( (const uint8_t *)(&variable), (uint32_t)( addr ), 4);           //flash write 0
+                flash_write( (const uint8_t *)(&variable), (uint32_t)( addr + 1 ), 4);       //+4
+                rewrite_times ++;
+                if( rewrite_times > 3 ){
+                    rewrite_times = 0;
+                    return false;
+                }
+                if( set_key_value( key, type, value ) == false ){
+                    return false;
+                }else{
+                    return true;
+                }
+            }
             
             uint32_t* key_address = NULL;
             UINT32_CHECK:
@@ -619,8 +643,23 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
             flash_write( (uint8_t *)(&hash), (uint32_t)( addr + 1 ), 4);
             flash_write( value, (uint32_t)( addr + 2 ), len );
 
-            if( memcmp( value, addr + 2, len ) == 0x00 ){
+            if( *(addr) == STRINGS_HEAD_FLAG && *(addr+1) == hash && memcmp( value, addr + 2, len ) == 0x00 ){//bug
                 stat = true;
+            }else{
+                //erase
+                uint32_t variable = FILL_STATE;
+                flash_write( (const uint8_t *)(&variable), (uint32_t)( addr ), 4);           //flash write 0
+                flash_write( (const uint8_t *)(&variable), (uint32_t)( addr + 1 ), 4);       //+4
+                rewrite_times ++;
+                if( rewrite_times > 3 ){
+                    rewrite_times = 0;
+                    return false;
+                }
+                if( set_key_value( key, type, value ) == false ){
+                    return false;
+                }else{
+                    return true;
+                }
             }
             
             volatile uint32_t* key_address = NULL;
