@@ -129,24 +129,24 @@ void init_key_value( uint32_t key_value_int32, uint32_t key_value_string, uint32
 
 void key_value_test( void ){
         
-    volatile uint16_t test_mode = 0x00;
-    uint32_t i = 0;
-    uint32_t j = 0;
-    for( i = 0; i < 21111; i++ ){
-        if( set_key_value( "key_value_test", UINT32, ( uint8_t * )( &i )) ){
-            if( get_key_value( "key_value_test", UINT32, ( uint8_t * )( &j )) && j == i ){
-                KEY_VALUE_INFO( "%d\r\n", j );
-            }else{
-                while( true );
-            }
-        }else{
-            while( true );
-        }
-    }
+//    volatile uint16_t test_mode = 0x00;
+//    uint32_t i = 0;
+//    uint32_t j = 0;
+//    for( i = 0; i < 21111; i++ ){
+//        if( set_key_value( "key_value_test", UINT32, ( uint8_t * )( &i )) ){
+//            if( get_key_value( "key_value_test", UINT32, ( uint8_t * )( &j )) && j == i ){
+//                KEY_VALUE_INFO( "%d\r\n", j );
+//            }else{
+//                while( true );
+//            }
+//        }else{
+//            while( true );
+//        }
+//    }
 
     uint32_t test_string = 0;
     uint8_t my_string_test[ 16 ] = "";
-    for( uint32_t i = 0; i < 21111; i++ ){
+    for( uint32_t i = 0; i < 1111111; i++ ){
         memset( my_string_test, 0, 16 );
         sprintf( (char *)my_string_test, "%d\r\n", i );
         if( set_key_value( "my_string_test", STRINGS, my_string_test ) ){
@@ -359,29 +359,28 @@ bool move_key_value( enum TYPE type ){
 //        #endif
         
         for( uint16_t i = 0, j = 0; i < ( KEY_VALUE_MAX_SIZE / 4 ); i ++ ){
-            
-            #if defined _STM32L_
-                if( STRINGS_HEAD_FLAG == *( address + i ) ){
-                    while( (*( address + i ) & 0xff000000) != 0x00000000 && (*( address + i ) & 0x000000ff ) != 0x00000000 && i < ( KEY_VALUE_MAX_SIZE / 4 ) ){
-                        flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 );
-                        i++;
-                        j++;
-                    }
+            if( STRINGS_HEAD_FLAG == *( address + i ) ){
+                while( (*( address + i ) & 0xff000000) != 0x00000000 && (*( address + i ) & 0x000000ff ) != 0x00000000 && i < ( KEY_VALUE_MAX_SIZE / 4 ) ){
                     flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 );
+                    i++;
                     j++;
                 }
-            #else
-                if( STRINGS_HEAD_FLAG == *( address + i ) ){
-                    while( (*( address + i ) & 0xff000000) != 0x00000000 && (*( address + i ) & 0x000000ff ) != 0x00000000 && i < ( KEY_VALUE_MAX_SIZE / 4 ) ){
-                        flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 );
-                        i++;
-                        j++;
-                    }
-                    flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 );
-                    j++;
-                }
+                flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 );
+                j++;
+            }
+                
+//            #if defined _STM32L_
+//                if( STRINGS_HEAD_FLAG == *( address + i ) ){
+//                    while( (*( address + i ) & 0xff000000) != 0x00000000 && (*( address + i ) & 0x000000ff ) != 0x00000000 && i < ( KEY_VALUE_MAX_SIZE / 4 ) ){
+//                        flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 );
+//                        i++;
+//                        j++;
+//                    }
+//                    flash_write( (const uint8_t *)(address + i ), (uint32_t)( KEY_VALUE_BACKUP + j * 4 ), 4 );
+//                    j++;
+//                }
+//            #else                
 //                if( FILL_STATE != *( address + i ) || tailed ){
-
 //                    if( tailed == false && ERASURE_STATE == *( address + i ) ){
 //                        break;
 //                    }
@@ -400,8 +399,7 @@ bool move_key_value( enum TYPE type ){
 //                        return false;
 //                    }
 //                }
-            
-            #endif
+//            #endif
             
         }
 
