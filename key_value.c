@@ -146,7 +146,7 @@ void key_value_test( void ){
 
     uint32_t test_string = 0;
     uint8_t my_string_test[ 16 ] = "";
-    for( uint32_t i = 0; i < 211111; i++ ){
+    for( uint32_t i = 0; i < 21111; i++ ){
         memset( my_string_test, 0, 16 );
         sprintf( (char *)my_string_test, "%d\r\n", i );
         if( set_key_value( "my_string_test", STRINGS, my_string_test ) ){
@@ -591,7 +591,7 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
                     return true;
                 }
             }
-            
+            rewrite_times = 0;
             uint32_t* key_address = NULL;
             UINT32_CHECK:
             key_address = __find_key( hash, type );
@@ -661,7 +661,7 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
                     return true;
                 }
             }
-            
+            rewrite_times = 0;
             volatile uint32_t* key_address = NULL;
             
             STRINGS_CHECK:
