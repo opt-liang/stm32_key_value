@@ -129,20 +129,20 @@ void init_key_value( uint32_t key_value_int32, uint32_t key_value_string, uint32
 
 void key_value_test( void ){
         
-//    volatile uint16_t test_mode = 0x00;
-//    uint32_t i = 0;
-//    uint32_t j = 0;
-//    for( i = 0; i < 21111; i++ ){
-//        if( set_key_value( "key_value_test", UINT32, ( uint8_t * )( &i )) ){
-//            if( get_key_value( "key_value_test", UINT32, ( uint8_t * )( &j )) && j == i ){
-//                KEY_VALUE_INFO( "%d\r\n", j );
-//            }else{
-//                while( true );
-//            }
-//        }else{
-//            while( true );
-//        }
-//    }
+    volatile uint16_t test_mode = 0x00;
+    uint32_t i = 0;
+    uint32_t j = 0;
+    for( i = 0; i < 21111; i++ ){
+        if( set_key_value( "key_value_test", UINT32, ( uint8_t * )( &i )) ){
+            if( get_key_value( "key_value_test", UINT32, ( uint8_t * )( &j )) && j == i ){
+                KEY_VALUE_INFO( "%d\r\n", j );
+            }else{
+                while( true );
+            }
+        }else{
+            while( true );
+        }
+    }
 
     uint32_t test_string = 0;
     uint8_t my_string_test[ 16 ] = "";
