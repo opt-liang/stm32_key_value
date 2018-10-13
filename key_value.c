@@ -579,14 +579,18 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
                 stat = true;
 			}else{
                 //erase
-                key_set_flag = false;
+                #if SYS
+                    key_set_flag = false;
+                #endif
                 uint32_t variable = FILL_STATE;
                 flash_write( (const uint8_t *)(&variable), (uint32_t)( addr ), 4);           //flash write 0
                 flash_write( (const uint8_t *)(&variable), (uint32_t)( addr + 1 ), 4);       //+4
                 rewrite_times ++;
                 if( rewrite_times > 3 ){
                     rewrite_times = 0;
-                    xSemaphoreGive( key_value_SemaphoreHandle );
+                    #if SYS
+                        xSemaphoreGive( key_value_SemaphoreHandle );
+                    #endif
                     return false;
                 }
                 if( set_key_value( key, type, value ) == false ){
@@ -594,7 +598,9 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
                 }else{
                     stat = true;
                 }
-                key_set_flag = true;
+                #if SYS
+                    key_set_flag = true;
+                #endif
                 return stat;
             }
             rewrite_times = 0;
@@ -653,14 +659,18 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
                 stat = true;
             }else{
                 //erase
-                key_set_flag = false;
+                #if SYS
+                    key_set_flag = false;
+                #endif
                 uint32_t variable = FILL_STATE;
                 flash_write( (const uint8_t *)(&variable), (uint32_t)( addr ), 4);           //flash write 0
                 flash_write( (const uint8_t *)(&variable), (uint32_t)( addr + 1 ), 4);       //+4
                 rewrite_times ++;
                 if( rewrite_times > 3 ){
                     rewrite_times = 0;
-                    xSemaphoreGive( key_value_SemaphoreHandle );
+                    #if SYS
+                        xSemaphoreGive( key_value_SemaphoreHandle );
+                    #endif
                     return false;
                 }
                 if( set_key_value( key, type, value ) == false ){
@@ -668,7 +678,9 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
                 }else{
                     stat = true;
                 }
-                key_set_flag = true;
+                #if SYS
+                    key_set_flag = true;
+                #endif
                 return stat;
             }
             rewrite_times = 0;
