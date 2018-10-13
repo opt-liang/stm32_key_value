@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "key_value.h"
 #include <stdlib.h>
+//#include "SEGGER_RTT.h"
 
 #define KEY_DEBUG 1
 
@@ -541,9 +542,12 @@ bool get_key_value( char *key, enum TYPE type , uint8_t *value ){
 }
 
 bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
-
+    
     #if SYS
-        xSemaphoreTake( key_value_SemaphoreHandle, portMAX_DELAY);
+        static bool key_set_flag = true;
+        if( key_set_flag ){
+            xSemaphoreTake( key_value_SemaphoreHandle, portMAX_DELAY);
+        }
     #endif
     
     bool stat = false;
@@ -568,25 +572,30 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
             //write real value
 			flash_write( (const uint8_t *)(&hash), (uint32_t)( addr ), 4);
 			flash_write( (const uint8_t *)(value), (uint32_t)( addr + 1 ), 4);
+            volatile bool flag = true;
             
 			//compare real value
-			if( *(addr) == hash && *((addr + 1) ) == *((uint32_t *)value) ){
+			if( *(addr) == hash && *((addr + 1) ) == *((uint32_t *)value) && flag ){
                 stat = true;
 			}else{
                 //erase
+                key_set_flag = false;
                 uint32_t variable = FILL_STATE;
                 flash_write( (const uint8_t *)(&variable), (uint32_t)( addr ), 4);           //flash write 0
                 flash_write( (const uint8_t *)(&variable), (uint32_t)( addr + 1 ), 4);       //+4
                 rewrite_times ++;
                 if( rewrite_times > 3 ){
                     rewrite_times = 0;
+                    xSemaphoreGive( key_value_SemaphoreHandle );
                     return false;
                 }
                 if( set_key_value( key, type, value ) == false ){
-                    return false;
+                    stat = false;
                 }else{
-                    return true;
+                    stat = true;
                 }
+                key_set_flag = true;
+                return stat;
             }
             rewrite_times = 0;
             uint32_t* key_address = NULL;
@@ -644,19 +653,23 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
                 stat = true;
             }else{
                 //erase
+                key_set_flag = false;
                 uint32_t variable = FILL_STATE;
                 flash_write( (const uint8_t *)(&variable), (uint32_t)( addr ), 4);           //flash write 0
                 flash_write( (const uint8_t *)(&variable), (uint32_t)( addr + 1 ), 4);       //+4
                 rewrite_times ++;
                 if( rewrite_times > 3 ){
                     rewrite_times = 0;
+                    xSemaphoreGive( key_value_SemaphoreHandle );
                     return false;
                 }
                 if( set_key_value( key, type, value ) == false ){
-                    return false;
+                    stat = false;
                 }else{
-                    return true;
+                    stat = true;
                 }
+                key_set_flag = true;
+                return stat;
             }
             rewrite_times = 0;
             volatile uint32_t* key_address = NULL;
