@@ -501,7 +501,7 @@ bool get_key_value( char *key, enum TYPE type , uint8_t *value ){
     bool stat = false;
     
     #if SYS
-        static int16_t local_flag = 0;
+        static int8_t local_flag = 0;
         if( local_flag == 0 ){
             xSemaphoreTake( key_value_SemaphoreHandle, portMAX_DELAY );
         }
