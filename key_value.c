@@ -128,25 +128,25 @@ void init_key_value( uint8_t key_value_int32_flash_index, uint8_t key_value_stri
 }
 
 void key_value_test( void ){
-        
+    volatile bool flag = true;
     volatile uint16_t test_mode = 0x00;
     uint32_t i = 0;
     uint32_t j = 0;
-    for( i = 0; i < 21111; i++ ){
+    for( i = 0; i < 2111; i++ ){
         if( set_key_value( "key_value_test", UINT32, ( uint8_t * )( &i )) ){
             if( get_key_value( "key_value_test", UINT32, ( uint8_t * )( &j )) && j == i ){
                 KEY_VALUE_INFO( "%d\r\n", j );
             }else{
-                while( true );
+                while( flag );
             }
         }else{
-            while( true );
+            while( flag );
         }
     }
 
     uint32_t test_string = 0;
     uint8_t my_string_test[ 16 ] = "";
-    for( uint32_t i = 0; i < 21111; i++ ){
+    for( uint32_t i = 0; i < 2111; i++ ){
         memset( my_string_test, 0, 16 );
         sprintf( (char *)my_string_test, "%d\r\n", i );
         if( set_key_value( "my_string_test", STRINGS, my_string_test ) ){
@@ -155,15 +155,13 @@ void key_value_test( void ){
                 if( test == i ){
                     KEY_VALUE_INFO( "%s", (( uint8_t * )test_string) );
                 }else{
-                    volatile bool flag = true;
                     while( flag );
                 }
             }else{
-                volatile bool flag = true;
                 while( flag );
             }
         }else{
-            while( true );
+            while( flag );
         }
     }
     
@@ -295,7 +293,7 @@ bool move_key_value_back( enum TYPE type ){
             return false;
         }
 
-        #if false//!defined _STM32L_
+        #if 0
             uint32_t *address = (uint32_t *)KEY_VALUE_BACKUP;
             uint16_t i = 0;
             while( *( address + i ) != ERASURE_STATE ){//stm32l151 serial
@@ -311,7 +309,10 @@ bool move_key_value_back( enum TYPE type ){
             }
         #endif
         
+    }else{
+        return stat;
     }
+    
     if( stat ){
         backup_flag( type, false );
     }
@@ -593,17 +594,17 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
                     #endif
                     return false;
                 }
-                if( set_key_value( key, type, value ) == false ){
-                    stat = false;
-                }else{
+                if( set_key_value( key, type, value ) ){
                     stat = true;
+                }else{
+                    stat = false;
                 }
                 #if SYS
                     key_set_flag = true;
                 #endif
+                rewrite_times = 0;
                 return stat;
             }
-            rewrite_times = 0;
             uint32_t* key_address = NULL;
             UINT32_CHECK:
             key_address = __find_key( hash, type );
@@ -673,19 +674,18 @@ bool set_key_value( char *key, enum TYPE type, uint8_t *value ){
                     #endif
                     return false;
                 }
-                if( set_key_value( key, type, value ) == false ){
-                    stat = false;
-                }else{
+                if( set_key_value( key, type, value ) ){
                     stat = true;
+                }else{
+                    stat = false;
                 }
                 #if SYS
                     key_set_flag = true;
                 #endif
+                rewrite_times = 0;
                 return stat;
             }
-            rewrite_times = 0;
             volatile uint32_t* key_address = NULL;
-            
             STRINGS_CHECK:
             
             key_address = __find_key( hash, type );
