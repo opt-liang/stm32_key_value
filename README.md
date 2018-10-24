@@ -100,28 +100,28 @@
 
 	void reboot_times_history_info( void ){
 	
-	uint32_t reboot_times = 0;
-	
-	get_key_value( "reboot_times", UINT32, (uint8_t *)(&reboot_times) );
-	
-	LOG_INFO( "reboot_times_history_info: %d\r\n", reboot_times );
-	
-	reboot_times ++;
-	
-	set_key_value( "reboot_times", UINT32, (uint8_t *)(&reboot_times) );
+		uint32_t reboot_times = 0;
+		
+		get_key_value( "reboot_times", UINT32, (uint8_t *)(&reboot_times) );
+		
+		LOG_INFO( "reboot_times_history_info: %d\r\n", reboot_times );
+		
+		reboot_times ++;
+		
+		set_key_value( "reboot_times", UINT32, (uint8_t *)(&reboot_times) );
 	}
 
 ### 获取一个随机数 ###
 
 	unsigned char math_rand(void){
 	
-	uint32_t RAND_SEED = 255;
-	
-	get_key_value( "RAND_SEED", UINT32, (uint8_t *)&RAND_SEED );
-	
-	RAND_SEED = RAND_SEED * 1103515845 + 3721;
-	
-	set_key_value( "RAND_SEED", UINT32, (uint8_t *)&RAND_SEED );
-	
-	return (RAND_SEED/9527) % 32768;
+		uint32_t RAND_SEED = 255;
+		
+		get_key_value( "RAND_SEED", UINT32, (uint8_t *)&RAND_SEED );
+		
+		RAND_SEED = RAND_SEED * 1103515845 + 3721;
+		
+		set_key_value( "RAND_SEED", UINT32, (uint8_t *)&RAND_SEED );
+		
+		return (RAND_SEED/9527) % 32768;
 	}
