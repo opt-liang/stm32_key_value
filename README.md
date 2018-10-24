@@ -46,7 +46,7 @@
 
 - **transplant.c 移植函数**
 
-	移植函数 uint32\_t flash\_sector\_address( int16_t index ) //除了配置transplant.h宏之外，当stm32内部flash扇区是不规则大小分布的时候，需要重写这个函数。举例：stm32f103rct6内部flash的每个扇区都是2KB，因此stm32f103rct6不需要重写这个函数；但stm32f407vet6内部flash分别是16/16/16/16/64/128/128/128，其内部flash扇区为不规则大小；因此stm32f407vet6需要移植这个函数，即根据第几个扇区获取当前扇区的首地址（函数功能）。
+	移植函数 uint32\_t flash\_sector\_address( int16_t index ) //除了配置transplant.h宏之外，当stm32内部flash扇区大小是不规则分布的时候，需要重写这个函数。举例：stm32f103rct6内部flash的每个扇区都是2KB，因此stm32f103rct6不需要重写这个函数；但stm32f407vet6内部flash分别是16/16/16/16/64/128/128/128，其内部flash扇区为不规则大小；因此stm32f407vet6需要移植这个函数，即根据第几个扇区获取当前扇区的首地址（函数功能）。
 
 ### 初始化 ###
 
