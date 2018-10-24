@@ -1,6 +1,5 @@
-## key value 根据关键字取值 ##
-
-**stm32\_key_value** 方便stm32平台芯片内部flash进行键值对存储(f1 f4 L151)；仅支持4字节整型数据(占用8Byte/个UINT32)和字符串数据（至少占用12Byte/个STRINGS）。
+### key value 根据关键字取值 ###
+- **stm32\_key_value** 方便stm32平台芯片内部flash进行键值对存储(f1 f4 L151)；仅支持4字节整型数据(占用8Byte/个UINT32)和字符串数据（至少占用12Byte/个STRINGS）。
 
 ### 优点 ###
 
