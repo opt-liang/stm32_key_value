@@ -57,45 +57,43 @@
 
 - 初始化key_value后直接调用测试函数key_value_test测试即可测试:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6、stm32f103c8t6、stm32l151rct6芯片; 均稳定运行)
 
-		void key_value_test( void ){
-			volatile uint16_t test_mode = 0x00;
-			uint32_t i = 0;
-			uint32_t j = 0;
-			for( i = 0; i < 1111111; i++ ){
-			    if( set_key_value( "key_value_test", UINT32, ( uint8_t * )( &i )) ){
-			        if( get_key_value( "key_value_test", UINT32, ( uint8_t * )( &j )) && j == i ){
-			            KEY_VALUE_INFO( "%d\r\n", j );
-			        }else{
-			            while( true );
-			        }
-			    }else{
-			        while( true );
-			    }
-			}
-			
-			uint32_t test_string = 0;
-			uint8_t my_string_test[ 16 ] = "";
-			for( uint32_t i = 1111111111; i > 0 ; i-- ){
-			    memset( my_string_test, 0, 16 );
-			    sprintf( (char *)my_string_test, "%d\r\n", i );
-			    if( set_key_value( "my_string_test", STRINGS, (uint8_t *)my_string_test ) ){
-			        if( get_key_value( "my_string_test", STRINGS, (uint8_t *)(&test_string) ) ){
-			            volatile uint32_t test  = atoi( (char *)test_string );
-			            if( test == i ){
-			                KEY_VALUE_INFO( "%s", (( uint8_t * )test_string) );
-			            }else{
-			                volatile bool flag = true;
-			                while( flag );
-			            }
-			        }else{
-			            volatile bool flag = true;
-			            while( flag );
-			        }
-			    }else{
-			        while( true );
-			    }
-			}
+	void key_value_test( void ){
+	    volatile bool flag = true;
+	    uint32_t i = 0;
+	    uint32_t j = 0;
+	    for( i = 0; i < 111111; i++ ){
+		if( set_key_value( "key_value_test", UINT32, ( uint8_t * )( &i )) ){
+		    if( get_key_value( "key_value_test", UINT32, ( uint8_t * )( &j )) && j == i ){
+			KEY_VALUE_INFO( "%d\r\n", j );
+		    }else{
+			while( flag );
+		    }
+		}else{
+		    while( flag );
 		}
+	    }
+
+	    uint32_t test_string = 0;
+	    uint8_t my_string_test[ 16 ] = "";
+	    for( uint32_t i = 0; i < 111111; i++ ){
+		memset( my_string_test, 0, 16 );
+		sprintf( (char *)my_string_test, "%d\r\n", i );
+		if( set_key_value( "my_string_test", STRINGS, my_string_test ) ){
+		    if( get_key_value( "my_string_test", STRINGS, (uint8_t *)(&test_string) ) ){
+			volatile uint32_t test  = atoi( (char *)test_string );
+			if( test == i ){
+			    KEY_VALUE_INFO( "%s", (( uint8_t * )test_string) );
+			}else{
+			    while( flag );
+			}
+		    }else{
+			while( flag );
+		    }
+		}else{
+		    while( flag );
+		}
+	    }
+	}
 
 ### 重启次数 ###
 
