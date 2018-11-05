@@ -55,7 +55,7 @@
 	检查hash冲突接口：check_hash_conflict( 5, "liang", "zhang", "gan", "hao", "liu" );
 ### 测试 ###
 
-- 初始化key\_value后直接调用测试函数key_value_test测试即可测试:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6、stm32f103c8t6、stm32l151rct6芯片; 均稳定运行)。注意：stm32l073用不了key_value功能，因为flash写一次之后不能够写擦除标志。
+- 初始化key\_value后直接调用测试函数key_value_test测试即可测试:stm32l151c8、stm32f407vet6、stm32f103rct6、stm32f103zet6、stm32f103c8t6、stm32l151rct6芯片; 均稳定运行)。注意：stm32l073用不了key_value功能，因为flash写一次之后不能够清除标志。
 
 		void key_value_test( void ){
 		    volatile bool flag = true;
